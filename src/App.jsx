@@ -10,7 +10,7 @@ export default function App() {
     const q = query.toLowerCase().trim();
     return foods
       .filter(f => selected === 'Barchasi' || f.kategoriya === selected)
-      .filter(f => ((f.nomi || '') + (f.kategoriya || '')).toLowerCase().includes(q));
+      .filter(f => ((f.nomi || '') + (f.kategoriya || '')).toLowerCase().startsWith(q));
   }, [selected, query]);
 
   return (
@@ -21,24 +21,24 @@ export default function App() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          <div className="flex-1 flex items-center gap-3 bg-white rounded-full shadow-sm px-4 py-2 ">
-            <svg className="w-5 h-5 text-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex-1 flex items-center gap-3 bg-white rounded-full px-4 py-2 border-1 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
             </svg>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Taom nomi yoki tavsif bo'yicha qidirish..."
+              placeholder="Taom nomi bo'yicha qidirish..."
               className="w-full outline-none text-sm bg-transparent"
             />
           </div>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelected(cat)}
-                className={`px-4 py-1 rounded-full text-sm transition-colors cursor-pointer ${
+                className={`px-4 py-1 rounded-full text-sm transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)] ${
                   selected === cat
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-white text-primary border border-primary/20 hover:bg-primary/10'
@@ -54,7 +54,7 @@ export default function App() {
       <main className="max-w-6xl mx-auto mt-8">
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((d, i) => (
-            <article key={d.id ?? i} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition">
+            <article key={d.id ?? i} className="bg-white rounded-2xl shadow-[0px_0px_1.5px_rgba(0,0,0,0.400)] p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-primary">{d.nomi}</h3>
@@ -71,7 +71,7 @@ export default function App() {
 
                 <div className="text-right flex flex-col items-end justify-center">
                   <div className="text-primary font-bold text-lg">
-                    {(d.narxi ?? '—').toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} UZS
+                    {(d.narxi ?? '—').toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} so'm
                   </div>
                 </div>
               </div>
