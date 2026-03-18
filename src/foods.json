@@ -1,0 +1,58 @@
+[
+  {"nomi": "Osh (Palov)", "narxi": 25000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Lag'mon", "narxi": 22000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Manti", "narxi": 20000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Norin", "narxi": 27000, "mavjudligi": false, "kategoriya": "Asosiy taom"},
+  {"nomi": "Dimlama", "narxi": 23000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Qovurma lag'mon", "narxi": 24000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Halim", "narxi": 21000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Beshbarmoq", "narxi": 32000, "mavjudligi": false, "kategoriya": "Asosiy taom"},
+  {"nomi": "Xonim", "narxi": 21000, "mavjudligi": true, "kategoriya": "Asosiy taom"},
+  {"nomi": "Shivit oshi", "narxi": 26000, "mavjudligi": false, "kategoriya": "Asosiy taom"},
+
+  {"nomi": "Moshxo'rda", "narxi": 17000, "mavjudligi": true, "kategoriya": "Sho'rva"},
+  {"nomi": "Sho'rva", "narxi": 18000, "mavjudligi": true, "kategoriya": "Sho'rva"},
+  {"nomi": "Chuchvara", "narxi": 19000, "mavjudligi": true, "kategoriya": "Sho'rva"},
+  {"nomi": "Qaynatma sho'rva", "narxi": 20000, "mavjudligi": true, "kategoriya": "Sho'rva"},
+  {"nomi": "Qatiqli sho'rva", "narxi": 15000, "mavjudligi": true, "kategoriya": "Sho'rva"},
+
+  {"nomi": "Qozon kabob", "narxi": 30000, "mavjudligi": true, "kategoriya": "Kaboblar"},
+  {"nomi": "Shashlik", "narxi": 18000, "mavjudligi": true, "kategoriya": "Kaboblar"},
+  {"nomi": "Jigar shashlik", "narxi": 15000, "mavjudligi": true, "kategoriya": "Kaboblar"},
+  {"nomi": "Tovuq shashlik", "narxi": 14000, "mavjudligi": true, "kategoriya": "Kaboblar"},
+  {"nomi": "Tandir go'sht", "narxi": 35000, "mavjudligi": false, "kategoriya": "Kaboblar"},
+
+  {"nomi": "Somsa", "narxi": 8000, "mavjudligi": true, "kategoriya": "Xamirli taomlar"},
+  {"nomi": "Ko'k somsa", "narxi": 8500, "mavjudligi": true, "kategoriya": "Xamirli taomlar"},
+  {"nomi": "Kartoshkali somsa", "narxi": 8000, "mavjudligi": true, "kategoriya": "Xamirli taomlar"},
+  {"nomi": "Tandir somsa", "narxi": 10000, "mavjudligi": true, "kategoriya": "Xamirli taomlar"},
+  {"nomi": "Gumma", "narxi": 7000, "mavjudligi": true, "kategoriya": "Xamirli taomlar"},
+
+  {"nomi": "Patir non", "narxi": 5000, "mavjudligi": true, "kategoriya": "Non"},
+  {"nomi": "Tandir non", "narxi": 4000, "mavjudligi": true, "kategoriya": "Non"},
+
+  {"nomi": "Chalop", "narxi": 8000, "mavjudligi": true, "kategoriya": "Ichimliklar"},
+  {"nomi": "Ayran", "narxi": 6000, "mavjudligi": true, "kategoriya": "Ichimliklar"},
+  {"nomi": "Qatiq", "narxi": 5000, "mavjudligi": true, "kategoriya": "Ichimliklar"},
+
+  {"nomi": "Omlet", "narxi": 12000, "mavjudligi": true, "kategoriya": "Nonushta"},
+  {"nomi": "Qovurilgan tuxum", "narxi": 10000, "mavjudligi": true, "kategoriya": "Nonushta"},
+
+  {"nomi": "Chak-chak", "narxi": 15000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Halva", "narxi": 14000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Navat", "narxi": 8000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Sumalak", "narxi": 12000, "mavjudligi": false, "kategoriya": "Shirinliklar"},
+  {"nomi": "Asalli pishiriq", "narxi": 13000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Shirin kulcha", "narxi": 10000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Qandolat keksi", "narxi": 16000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+  {"nomi": "Murabbo", "narxi": 9000, "mavjudligi": true, "kategoriya": "Shirinliklar"},
+
+  {"nomi": "Achchiq-chuq", "narxi": 8000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Shakarob", "narxi": 7000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Bahor salati", "narxi": 9000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Olivye", "narxi": 12000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Vinegret", "narxi": 11000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Sabzavotli salat", "narxi": 8000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Karamli salat", "narxi": 7000, "mavjudligi": true, "kategoriya": "Salatlar"},
+  {"nomi": "Sabzili salat", "narxi": 7000, "mavjudligi": true, "kategoriya": "Salatlar"}
+]
