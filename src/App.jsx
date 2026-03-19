@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowLeft,
   Beef,
@@ -31,8 +32,19 @@ function getCategoryIcon(category) {
 
 function FoodRow({ food }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white">
-      <article className="relative flex cursor-pointer gap-3 bg-white p-2">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2 }}
+      className="relative overflow-hidden rounded-xl border border-slate-200 bg-white"
+    >
+      <motion.article
+        whileHover={{ y: -1 }}
+        transition={{ duration: 0.15 }}
+        className="relative flex cursor-pointer gap-3 bg-white p-2"
+      >
         <img
           src={food.rasm}
           alt={food.nomi}
@@ -60,8 +72,8 @@ function FoodRow({ food }) {
             </span>
           </div>
         </div>
-      </article>
-    </div>
+      </motion.article>
+    </motion.div>
   )
 }
 
@@ -118,11 +130,21 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] p-3 text-slate-900">
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="min-h-screen bg-[#f6f7f9] p-3 text-slate-900"
+    >
       <section className="mx-auto max-w-7xl">
-        <div className="mb-3 px-1">
+        <motion.div
+          initial={{ y: -8, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="mb-3 px-1"
+        >
           <p className="text-base font-semibold text-orange-600">Rayhon milliy taomlari</p>
-        </div>
+        </motion.div>
 
         <div
           role="button"
@@ -149,7 +171,12 @@ export default function App() {
         </div>
 
         {!isCategoryPage && !query.trim() && (
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mb-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
+          >
             {categories.map((category) => {
               const Icon = getCategoryIcon(category)
               return (
@@ -164,35 +191,55 @@ export default function App() {
                 </button>
               )
             })}
-          </div>
+          </motion.div>
         )}
 
+        <AnimatePresence mode="wait">
         {query.trim() ? (
-          <section className="space-y-3">
+          <motion.section
+            key="search-results"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-3"
+          >
             <div className="px-1">
               <h2 className="text-lg font-bold">Qidiruv natijalari</h2>
               <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
             </div>
-            <div className="space-y-2">
+            <motion.div layout className="space-y-2">
               {searchResults.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
-            </div>
-          </section>
+            </motion.div>
+          </motion.section>
         ) : !isCategoryPage ? (
-          <section className="space-y-3">
+          <motion.section
+            key="all-foods"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-3"
+          >
             <div className="px-1">
               <h2 className="text-lg font-bold">Barcha taomlar</h2>
               <p className="text-xs text-slate-500">{categoryItems.length} ta taom</p>
             </div>
-            <div className="space-y-2">
+            <motion.div layout className="space-y-2">
               {categoryItems.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
-            </div>
-          </section>
+            </motion.div>
+          </motion.section>
         ) : (
-          <section
+          <motion.section
+            key="category-foods"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
             className="space-y-3 touch-pan-y"
             onPointerDown={onCatalogPointerDown}
             onPointerMove={onCatalogPointerMove}
@@ -213,14 +260,15 @@ export default function App() {
                 <p className="text-xs text-slate-500">{categoryItems.length} ta taom</p>
               </div>
             </div>
-            <div className="space-y-2">
+            <motion.div layout className="space-y-2">
               {categoryItems.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
-            </div>
-          </section>
+            </motion.div>
+          </motion.section>
         )}
+        </AnimatePresence>
       </section>
-    </main>
+    </motion.main>
   )
 }
