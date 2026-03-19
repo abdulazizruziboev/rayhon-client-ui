@@ -36,12 +36,11 @@ function FoodRow({ food }) {
       layout
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: false, amount: 0.2 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
       className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/80 shadow-[0_10px_24px_rgba(15,23,42,0.06)] backdrop-blur"
     >
       <motion.article
-        whileHover={{ y: -1 }}
         transition={{ duration: 0.15 }}
         className="relative flex gap-3 bg-white/80 p-2.5"
       >
@@ -187,7 +186,7 @@ export default function App() {
               searchRef.current?.focus()
             }
           }}
-          className="mb-4 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 focus-within:border-black/50 transition-transform duration-200 hover:-translate-y-0.5"
+          className="mb-4 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 focus-within:border-black/50 "
         >
           <div className="flex items-center gap-3">
             <Search className="size-4 shrink-0 text-slate-500" />
@@ -276,7 +275,7 @@ export default function App() {
               <h2 className="text-lg font-semibold text-slate-900">Barcha taomlar</h2>
               <p className="text-xs text-slate-500">{categoryItems.length} ta taom</p>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {categoryItems.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
