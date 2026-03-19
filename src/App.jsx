@@ -9,7 +9,7 @@ function formatPrice(value) {
 }
 
 // Direct image URL to avoid broken page link
-const FALLBACK_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
+const FALLBACK_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png'
 
 export default function App() {
   const [query, setQuery] = useState('')
@@ -22,9 +22,7 @@ export default function App() {
       if (!term) return true
 
       return (
-        food.nomi.toLowerCase().includes(term) ||
-        food.tarkibi.toLowerCase().includes(term) ||
-        food.kategoriya.toLowerCase().includes(term)
+        food.nomi.toLowerCase().includes(term)
       )
     })
 
