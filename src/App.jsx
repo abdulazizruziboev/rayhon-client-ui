@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowLeft,
@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import foods from './foods.json'
 
-const FALLBACK_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
+const FALLBACK_IMAGE = '/img-nf.png'
 
 function formatPrice(value) {
   return new Intl.NumberFormat('uz-UZ').format(value)
@@ -34,16 +34,16 @@ function FoodRow({ food }) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.2 }}
-      className="relative overflow-hidden rounded-xl border border-slate-200 bg-white"
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+      className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/80 shadow-[0_10px_24px_rgba(15,23,42,0.06)] backdrop-blur"
     >
       <motion.article
         whileHover={{ y: -1 }}
         transition={{ duration: 0.15 }}
-        className="relative flex cursor-pointer gap-3 bg-white p-2"
+        className="relative flex gap-3 bg-white/80 p-2.5"
       >
         <img
           src={food.rasm}
@@ -52,12 +52,12 @@ function FoodRow({ food }) {
             event.currentTarget.onerror = null
             event.currentTarget.src = FALLBACK_IMAGE
           }}
-          className="h-[92px] w-[92px] shrink-0 rounded-lg object-cover"
+          className="h-[92px] w-[92px] shrink-0 rounded-xl object-cover"
         />
 
         <div className="min-w-0 flex-1">
           <div className="line-clamp-2 text-sm font-semibold text-slate-900">{food.nomi}</div>
-          <div className="mt-1 inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-medium text-orange-600">
+          <div className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200">
             {food.kategoriya}
           </div>
           <p className="mt-1 line-clamp-2 text-xs text-slate-500">{food.tarkibi}</p>
@@ -68,7 +68,7 @@ function FoodRow({ food }) {
                 food.mavjudligi ? 'bg-emerald-500' : 'bg-rose-500'
               }`}
             >
-              {food.mavjudligi ? 'Tayyor' : 'Qolmagan'}
+              {food.mavjudligi ? 'Mavjud' : 'Qolmagan'}
             </span>
           </div>
         </div>
@@ -80,7 +80,9 @@ function FoodRow({ food }) {
 export default function App() {
   const [query, setQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [catalogEdgeShadow, setCatalogEdgeShadow] = useState({ left: false, right: false })
   const searchRef = useRef(null)
+  const categoryScrollRef = useRef(null)
   const catalogSwipeStartX = useRef(0)
   const catalogSwipeDeltaX = useRef(0)
 
@@ -129,21 +131,50 @@ export default function App() {
     catalogSwipeDeltaX.current = 0
   }
 
+  useEffect(() => {
+    const element = categoryScrollRef.current
+    if (!element || isCategoryPage || query.trim()) {
+      setCatalogEdgeShadow({ left: false, right: false })
+      return
+    }
+
+    const updateShadows = () => {
+      const maxScrollLeft = element.scrollWidth - element.clientWidth
+      if (maxScrollLeft <= 1) {
+        setCatalogEdgeShadow({ left: false, right: false })
+        return
+      }
+
+      const left = element.scrollLeft > 2
+      const right = element.scrollLeft < maxScrollLeft - 2
+      setCatalogEdgeShadow({ left, right })
+    }
+
+    updateShadows()
+    element.addEventListener('scroll', updateShadows, { passive: true })
+    window.addEventListener('resize', updateShadows)
+
+    return () => {
+      element.removeEventListener('scroll', updateShadows)
+      window.removeEventListener('resize', updateShadows)
+    }
+  }, [isCategoryPage, query])
+
   return (
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="min-h-screen bg-[#f6f7f9] p-3 text-slate-900"
+      className="min-h-screen bg-white p-3 text-slate-900"
     >
       <section className="mx-auto max-w-7xl">
         <motion.div
-          initial={{ y: -8, opacity: 0 }}
+          initial={{ y: -12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
           className="mb-3 px-1"
         >
-          <p className="text-base font-semibold text-orange-600">Rayhon milliy taomlari</p>
+          <p className="text-base font-semibold text-slate-800">Rayhon milliy taomlari</p>
         </motion.div>
 
         <div
@@ -156,41 +187,53 @@ export default function App() {
               searchRef.current?.focus()
             }
           }}
-          className="mb-4 rounded-2xl border border-slate-200 bg-white px-4 py-2"
+          className="mb-4 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 focus-within:border-black/50 transition-transform duration-200 hover:-translate-y-0.5"
         >
           <div className="flex items-center gap-3">
-            <Search className="size-4 shrink-0 text-slate-400" />
+            <Search className="size-4 shrink-0 text-slate-500" />
             <Input
               ref={searchRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Qidirish..."
-              className="h-[30px] border-0 bg-transparent px-0 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
+              className="h-[30px] border-0 bg-transparent px-0 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:ring-0"
             />
           </div>
         </div>
 
         {!isCategoryPage && !query.trim() && (
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mb-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="relative mb-4"
           >
-            {categories.map((category) => {
-              const Icon = getCategoryIcon(category)
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => setSelectedCategory(category)}
-                  className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-orange-200 hover:text-orange-600"
-                >
-                  <Icon className="size-3.5" />
-                  {category}
-                </button>
-              )
-            })}
+            <div
+              className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-white to-transparent transition-opacity duration-200 ${
+                catalogEdgeShadow.left ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <div
+              className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-white to-transparent transition-opacity duration-200 ${
+                catalogEdgeShadow.right ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <div ref={categoryScrollRef} className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+              {categories.map((category) => {
+                const Icon = getCategoryIcon(category)
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category)}
+                    className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white/75 px-3 py-1.5 text-xs font-medium text-slate-700 backdrop-blur transition hover:bg-white"
+                  >
+                    <Icon className="size-3.5" />
+                    {category}
+                  </button>
+                )
+              })}
+            </div>
           </motion.div>
         )}
 
@@ -198,48 +241,54 @@ export default function App() {
         {query.trim() ? (
           <motion.section
             key="search-results"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             className="space-y-3"
           >
             <div className="px-1">
-              <h2 className="text-lg font-bold">Qidiruv natijalari</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Qidiruv natijalari</h2>
               <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
             </div>
-            <motion.div layout className="space-y-2">
-              {searchResults.map((food) => (
-                <FoodRow key={food.id} food={food} />
-              ))}
-            </motion.div>
+            {searchResults.length > 0 ? (
+              <div className="space-y-2">
+                {searchResults.map((food) => (
+                  <FoodRow key={food.id} food={food} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium text-slate-500">
+                Taomlar topilmadi
+              </div>
+            )}
           </motion.section>
         ) : !isCategoryPage ? (
           <motion.section
             key="all-foods"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             className="space-y-3"
           >
             <div className="px-1">
-              <h2 className="text-lg font-bold">Barcha taomlar</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Barcha taomlar</h2>
               <p className="text-xs text-slate-500">{categoryItems.length} ta taom</p>
             </div>
-            <motion.div layout className="space-y-2">
+            <div className="space-y-2">
               {categoryItems.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
-            </motion.div>
+            </div>
           </motion.section>
         ) : (
           <motion.section
             key="category-foods"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             className="space-y-3 touch-pan-y"
             onPointerDown={onCatalogPointerDown}
             onPointerMove={onCatalogPointerMove}
@@ -250,21 +299,21 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setSelectedCategory(null)}
-                  className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-1.5 text-sm font-medium text-slate-700 backdrop-blur transition hover:bg-white"
+              >
                 <ArrowLeft className="size-4" />
                 Orqaga
               </button>
               <div>
-                <h2 className="text-lg font-bold">{selectedCategory || 'Barchasi'}</h2>
+                <h2 className="text-lg font-semibold text-slate-900">{selectedCategory || 'Barchasi'}</h2>
                 <p className="text-xs text-slate-500">{categoryItems.length} ta taom</p>
               </div>
             </div>
-            <motion.div layout className="space-y-2">
+            <div className="space-y-2">
               {categoryItems.map((food) => (
                 <FoodRow key={food.id} food={food} />
               ))}
-            </motion.div>
+            </div>
           </motion.section>
         )}
         </AnimatePresence>
