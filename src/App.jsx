@@ -230,11 +230,11 @@ export default function App() {
         >
           <div className="flex w-full flex-col items-center">
             <img
-              src="/logo.png"
+              src="/logo-tr.png"
               alt="Rayhon logotipi"
-              className="!h-[75px] w-full object-cover"
+              className="!h-[80px] w-full max-w-[220px]  object-cover"
             />
-            <p className="text-[#1bac4b]">taomlari menyusi</p>
+            <p className="text-[#1bac4b] leading-none">taomlari menyusi</p>
           </div>
         </motion.div>
 
