@@ -228,14 +228,14 @@ export default function App() {
           transition={{ duration: 0.35, ease: 'easeOut' }}
           className="mb-4 px-1"
         >
-          <div className="flex w-full flex-col items-center">
+          <a href='/' className="flex w-full flex-col items-center">
             <img
               src="/logo-tr.png"
               alt="Rayhon logotipi"
               className="!h-[80px] w-full max-w-[220px]  object-cover"
             />
             <p className="text-[#1bac4b] leading-none">taomlari menyusi</p>
-          </div>
+          </a>
         </motion.div>
 
         <div
