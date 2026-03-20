@@ -4,8 +4,6 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/outfit";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
     --background: oklch(0.99 0.03 92);
     --foreground: oklch(0.22 0.03 55);
@@ -39,40 +37,6 @@
     --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
     --sidebar-border: oklch(0.923 0.003 48.717);
     --sidebar-ring: oklch(0.709 0.01 56.259);
-}
-
-.dark {
-    --background: oklch(0.16 0.03 55);
-    --foreground: oklch(0.985 0.01 100);
-    --card: oklch(0.22 0.03 55);
-    --card-foreground: oklch(0.985 0.01 100);
-    --popover: oklch(0.22 0.03 55);
-    --popover-foreground: oklch(0.985 0.01 100);
-    --primary: oklch(0.84 0.17 76);
-    --primary-foreground: oklch(0.2 0.03 55);
-    --secondary: oklch(0.27 0.03 55);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.27 0.03 55);
-    --muted-foreground: oklch(0.78 0.02 88);
-    --accent: oklch(0.84 0.17 76);
-    --accent-foreground: oklch(0.2 0.03 55);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.84 0.17 76);
-    --chart-1: oklch(0.905 0.182 98.111);
-    --chart-2: oklch(0.795 0.184 86.047);
-    --chart-3: oklch(0.681 0.162 75.834);
-    --chart-4: oklch(0.554 0.135 66.442);
-    --chart-5: oklch(0.476 0.114 61.907);
-    --sidebar: oklch(0.216 0.006 56.043);
-    --sidebar-foreground: oklch(0.985 0.001 106.423);
-    --sidebar-primary: oklch(0.795 0.184 86.047);
-    --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
-    --sidebar-accent: oklch(0.268 0.007 34.298);
-    --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.553 0.013 58.071);
 }
 
 @theme inline {
