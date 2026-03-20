@@ -8,12 +8,79 @@ import {
   Sandwich,
   Search,
   Soup,
-  Wine
+  Wine,
+  X
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import foods from './foods.json'
 
 const FALLBACK_IMAGE = '/img-nf.png'
+
+const TOKEN_SYNONYMS = {
+  palov: ['plov', 'osh'],
+  plov: ['palov', 'osh'],
+  osh: ['palov', 'plov'],
+  somsa: ['samsa'],
+  samsa: ['somsa'],
+  manti: ['mantu'],
+  kabob: ['kebab'],
+  shashlik: ['kebab'],
+  kebab: ['kabob', 'shashlik']
+}
+
+function normalizeText(value = '') {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[ʼ'‘’`]/g, '')
+    .replace(/ё/g, 'e')
+    .replace(/ў/g, 'o')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function tokenizeQuery(value) {
+  return normalizeText(value)
+    .split(' ')
+    .filter(Boolean)
+}
+
+function getTokenVariants(token) {
+  const variants = new Set([token])
+  const synonymList = TOKEN_SYNONYMS[token]
+  if (synonymList) {
+    synonymList.forEach((item) => variants.add(item))
+  }
+  return Array.from(variants)
+}
+
+function scoreFoodMatch(fields, tokens) {
+  let score = 0
+
+  for (const token of tokens) {
+    const variants = getTokenVariants(token)
+    let tokenScore = 0
+
+    variants.forEach((variant) => {
+      if (fields.name.startsWith(variant)) tokenScore = Math.max(tokenScore, 6)
+      else if (fields.name.includes(variant)) tokenScore = Math.max(tokenScore, 4)
+
+      if (fields.category.startsWith(variant)) tokenScore = Math.max(tokenScore, 3)
+      else if (fields.category.includes(variant)) tokenScore = Math.max(tokenScore, 2)
+
+      if (fields.ingredients.includes(variant)) tokenScore = Math.max(tokenScore, 1)
+      if (fields.availability.includes(variant)) tokenScore = Math.max(tokenScore, 1)
+      if (fields.price.includes(variant)) tokenScore = Math.max(tokenScore, 1)
+    })
+
+    if (!tokenScore) return null
+    score += tokenScore
+  }
+
+  score += Math.min(3, tokens.length)
+  return score
+}
 
 function formatPrice(value) {
   return new Intl.NumberFormat('uz-UZ').format(value)
@@ -94,27 +161,58 @@ export default function App() {
   const categoryChipRefs = useRef([])
   const catalogSwipeStart = useRef({ x: 0, y: 0, active: false, locked: false })
 
-  const groupedFoods = useMemo(() => {
-    const term = query.trim().toLowerCase()
-    const filtered = foods.filter((food) => {
-      if (!term) return true
-      return (
-        food.nomi.toLowerCase().includes(term) ||
-        food.tarkibi.toLowerCase().includes(term) ||
-        food.kategoriya.toLowerCase().includes(term)
-      )
+  const searchIndex = useMemo(
+    () =>
+      foods.map((food) => ({
+        food,
+        fields: {
+          name: normalizeText(food.nomi),
+          ingredients: normalizeText(food.tarkibi),
+          category: normalizeText(food.kategoriya),
+          availability: food.mavjudligi ? 'mavjud' : 'qolmagan',
+          price: String(food.narxi)
+        }
+      })),
+    [foods]
+  )
+
+  const { groupedFoods, searchResults } = useMemo(() => {
+    const tokens = tokenizeQuery(query)
+
+    if (!tokens.length) {
+      const groups = foods.reduce((acc, food) => {
+        if (!acc[food.kategoriya]) acc[food.kategoriya] = []
+        acc[food.kategoriya].push(food)
+        return acc
+      }, {})
+
+      return { groupedFoods: groups, searchResults: [] }
+    }
+
+    const matches = []
+
+    searchIndex.forEach((item) => {
+      const matchScore = scoreFoodMatch(item.fields, tokens)
+      if (matchScore !== null) {
+        matches.push({ food: item.food, score: matchScore })
+      }
     })
 
-    return filtered.reduce((acc, food) => {
+    matches.sort(
+      (a, b) => b.score - a.score || a.food.nomi.localeCompare(b.food.nomi, 'uz', { sensitivity: 'base' })
+    )
+
+    const grouped = matches.reduce((acc, { food }) => {
       if (!acc[food.kategoriya]) acc[food.kategoriya] = []
       acc[food.kategoriya].push(food)
       return acc
     }, {})
-  }, [query])
+
+    return { groupedFoods: grouped, searchResults: matches.map((entry) => entry.food) }
+  }, [query, searchIndex])
 
   const categories = Object.keys(groupedFoods)
   const categoryButtons = ['Barchasi', ...categories]
-  const searchResults = query.trim() ? Object.values(groupedFoods).flat() : []
   const activeCategoryIndex = selectedCategory ? categories.indexOf(selectedCategory) + 1 : 0
   const activeCategoryLabel = selectedCategory ?? 'Barchasi'
   const activeFoods = selectedCategory ? groupedFoods[selectedCategory] ?? [] : Object.values(groupedFoods).flat()
@@ -257,8 +355,22 @@ export default function App() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Qidirish..."
-              className="h-7 border-0 bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0"
+              className="h-7 border-0 bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
             />
+            {query && (
+              <button
+                type="button"
+                aria-label="Qidiruvni tozalash"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setQuery('')
+                  searchRef.current?.focus()
+                }}
+                className="ml-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b]"
+              >
+                <X className="size-4" />
+              </button>
+            )}
           </div>
         </div>
 
