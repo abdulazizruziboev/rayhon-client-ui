@@ -355,7 +355,7 @@ export default function App() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Qidirish..."
-              className="h-7 border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
+              className="h-7 border-0 bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
             />
             {query && (
               <button
