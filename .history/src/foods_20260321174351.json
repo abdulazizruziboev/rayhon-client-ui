@@ -1,0 +1,37 @@
+[
+  { "id": 1, "nomi": "Toshkent palovi", "narxi": 28000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Guruch, qo'y go'shti, sabzi, noxat", "rasmlar": ["https://picsum.photos/200?1"], "o'lchov": "1 porsiya" },
+  { "id": 2, "nomi": "Osh (Andijoncha)", "narxi": 30000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Guruch, mol go'shti, sabzi", "rasmlar": ["https://picsum.photos/200?2"], "o'lchov": "1 porsiya" },
+  { "id": 3, "nomi": "Lag'mon", "narxi": 26000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Qo'lda cho'zilgan makaron, go'sht, sabzavot", "rasmlar": ["https://picsum.photos/200?3"], "o'lchov": "1 kosa" },
+  { "id": 4, "nomi": "Sho'rva", "narxi": 18000, "mavjudligi": true, "kategoriya": "Sho'rvalar", "tarkibi": "Go'sht, kartoshka, sabzi", "rasmlar": ["https://picsum.photos/200?4"], "o'lchov": "1 kosa" },
+  { "id": 5, "nomi": "Manti", "narxi": 24000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Xamir, go'sht, piyoz", "rasmlar": ["https://picsum.photos/200?5"], "o'lchov": "5 dona" },
+  { "id": 6, "nomi": "Somsa", "narxi": 8000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Xamir, go'sht, piyoz", "rasmlar": ["https://picsum.photos/200?6"], "o'lchov": "1 dona" },
+  { "id": 7, "nomi": "Shashlik", "narxi": 15000, "mavjudligi": true, "kategoriya": "Grill", "tarkibi": "Mol go'shti", "rasmlar": ["https://picsum.photos/200?7"], "o'lchov": "1 dona" },
+  { "id": 8, "nomi": "Tandir go'sht", "narxi": 35000, "mavjudligi": true, "kategoriya": "Grill", "tarkibi": "Qo'y go'shti", "rasmlar": ["https://picsum.photos/200?8"], "o'lchov": "1 porsiya" },
+  { "id": 9, "nomi": "Dimlama", "narxi": 27000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Go'sht, kartoshka, sabzavot", "rasmlar": ["https://picsum.photos/200?9"], "o'lchov": "1 porsiya" },
+  { "id": 10, "nomi": "Qozon kabob", "narxi": 32000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Go'sht, kartoshka", "rasmlar": ["https://picsum.photos/200?10"], "o'lchov": "1 porsiya" },
+
+  { "id": 11, "nomi": "Norin", "narxi": 29000, "mavjudligi": true, "kategoriya": "Milliy taom", "tarkibi": "Ot go'shti, xamir", "rasmlar": ["https://picsum.photos/200?11"], "o'lchov": "1 porsiya" },
+  { "id": 12, "nomi": "Chuchvara", "narxi": 20000, "mavjudligi": true, "kategoriya": "Sho'rvalar", "tarkibi": "Xamir, go'sht", "rasmlar": ["https://picsum.photos/200?12"], "o'lchov": "1 kosa" },
+  { "id": 13, "nomi": "Halim", "narxi": 22000, "mavjudligi": true, "kategoriya": "Milliy taom", "tarkibi": "Bug'doy, go'sht", "rasmlar": ["https://picsum.photos/200?13"], "o'lchov": "1 kosa" },
+  { "id": 14, "nomi": "Tuxum barak", "narxi": 21000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Xamir, tuxum", "rasmlar": ["https://picsum.photos/200?14"], "o'lchov": "1 porsiya" },
+  { "id": 15, "nomi": "Qovurma lag'mon", "narxi": 27000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Makaron, go'sht", "rasmlar": ["https://picsum.photos/200?15"], "o'lchov": "1 porsiya" },
+
+  { "id": 16, "nomi": "Cheburek", "narxi": 12000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Xamir, go'sht", "rasmlar": ["https://picsum.photos/200?16"], "o'lchov": "1 dona" },
+  { "id": 17, "nomi": "Hot-dog", "narxi": 15000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Non, sosiska", "rasmlar": ["https://picsum.photos/200?17"], "o'lchov": "1 dona" },
+  { "id": 18, "nomi": "Burger", "narxi": 20000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Non, kotlet", "rasmlar": ["https://picsum.photos/200?18"], "o'lchov": "1 dona" },
+  { "id": 19, "nomi": "Fri kartoshka", "narxi": 10000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Kartoshka", "rasmlar": ["https://picsum.photos/200?19"], "o'lchov": "1 porsiya" },
+  { "id": 20, "nomi": "Pizza", "narxi": 45000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Xamir, pishloq", "rasmlar": ["https://picsum.photos/200?20"], "o'lchov": "1 dona" },
+
+  { "id": 21, "nomi": "Salat Achichuk", "narxi": 8000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Pomidor, piyoz", "rasmlar": ["https://picsum.photos/200?21"], "o'lchov": "1 porsiya" },
+  { "id": 22, "nomi": "Olivye", "narxi": 15000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Kartoshka, kolbasa", "rasmlar": ["https://picsum.photos/200?22"], "o'lchov": "1 porsiya" },
+  { "id": 23, "nomi": "Vinegret", "narxi": 14000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Lavlagi, sabzi", "rasmlar": ["https://picsum.photos/200?23"], "o'lchov": "1 porsiya" },
+
+  { "id": 24, "nomi": "Choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Qora choy", "rasmlar": ["https://picsum.photos/200?24"], "o'lchov": "1 choynak" },
+  { "id": 25, "nomi": "Ko'k choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Ko'k choy", "rasmlar": ["https://picsum.photos/200?25"], "o'lchov": "1 choynak" },
+  { "id": 26, "nomi": "Coca-Cola", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://picsum.photos/200?26"], "o'lchov": "1 dona" },
+  { "id": 27, "nomi": "Fanta", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://picsum.photos/200?27"], "o'lchov": "1 dona" },
+  { "id": 28, "nomi": "Sharbat", "narxi": 12000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Mevali sharbat", "rasmlar": ["https://picsum.photos/200?28"], "o'lchov": "1 stakan" },
+
+  { "id": 29, "nomi": "Napoleon tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Krem, xamir", "rasmlar": ["https://picsum.photos/200?29"], "o'lchov": "1 bo'lak" },
+  { "id": 30, "nomi": "Medovik tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Asal, krem", "rasmlar": ["https://picsum.photos/200?30"], "o'lchov": "1 bo'lak" }
+]

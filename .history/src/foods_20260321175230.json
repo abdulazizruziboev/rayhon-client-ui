@@ -13,8 +13,8 @@
   { "id": 11, "nomi": "Norin", "narxi": 29000, "mavjudligi": true, "kategoriya": "Milliy taom", "tarkibi": "Ot go'shti, xamir", "rasmlar": ["https://avatars.mds.yandex.net/get-altay/13220791/2a000001958c2808f46470a4f11b5ecace24/L_height"], "o'lchov": "1 porsiya" },
   { "id": 12, "nomi": "Chuchvara", "narxi": 20000, "mavjudligi": true, "kategoriya": "Sho'rvalar", "tarkibi": "Xamir, go'sht", "rasmlar": ["https://narrativedictionary.navoiy-uni.uz/Files/a949b166-59a7-4a42-afe1-fe6f9716ebaf.jpg"], "o'lchov": "1 kosa" },
   { "id": 13, "nomi": "Halim", "narxi": 22000, "mavjudligi": true, "kategoriya": "Milliy taom", "tarkibi": "Bug'doy, go'sht", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0FNgdd7YXzych0DahUMdmQWQL2JFfqoZ7Bw&s"], "o'lchov": "1 kosa" },
-  { "id": 14, "nomi": "Tuxum barak", "narxi": 21000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Xamir, tuxum", "rasmlar": ["https://i.ytimg.com/vi/eA1-8TJxC9A/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBpVb7OVhXLBoZvd5ltwLwtQzTtSw"], "o'lchov": "1 porsiya" },
-  { "id": 15, "nomi": "Qovurma lag'mon", "narxi": 27000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Makaron, go'sht", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5xI7iEa1Gh2GuH0bOthS1As06zy47pLdYUA&s"], "o'lchov": "1 porsiya" },
+  { "id": 14, "nomi": "Tuxum barak", "narxi": 21000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Xamir, tuxum", "rasmlar": ["https://picsum.photos/200?14"], "o'lchov": "1 porsiya" },
+  { "id": 15, "nomi": "Qovurma lag'mon", "narxi": 27000, "mavjudligi": true, "kategoriya": "Asosiy taom", "tarkibi": "Makaron, go'sht", "rasmlar": ["https://picsum.photos/200?15"], "o'lchov": "1 porsiya" },
 
   { "id": 16, "nomi": "Cheburek", "narxi": 12000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Xamir, go'sht", "rasmlar": ["https://picsum.photos/200?16"], "o'lchov": "1 dona" },
   { "id": 17, "nomi": "Hot-dog", "narxi": 15000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Non, sosiska", "rasmlar": ["https://picsum.photos/200?17"], "o'lchov": "1 dona" },

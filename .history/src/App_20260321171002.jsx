@@ -3,8 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import {
   Beef,
   CakeSlice,
-  ChevronLeft,
-  ChevronRight,
   Fish,
   Leaf,
   Sandwich,
@@ -88,39 +86,9 @@ function formatPrice(value) {
   return new Intl.NumberFormat('uz-UZ').format(value)
 }
 
-function sanitizeGallery(list = []) {
-  return list
-    .map((url) => (typeof url === 'string' ? url.trim() : ''))
-    .filter(
-      (url) =>
-        url &&
-        (url.startsWith('http://') ||
-          url.startsWith('https://') ||
-          url.startsWith('/') ||
-          url.startsWith('./') ||
-          url.startsWith('../'))
-    )
-}
-
-function getGallery(food) {
-  const fromArray = sanitizeGallery(food?.rasmlar)
-  if (fromArray.length) return fromArray
-  if (food?.rasm) return [food.rasm]
-  return [FALLBACK_IMAGE]
-}
-
-function getMainImage(food) {
-  return getGallery(food)[0] || FALLBACK_IMAGE
-}
-
 function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...rest }) {
-  const [loading, setLoading] = useState(Boolean(src))
+  const [loading, setLoading] = useState(true)
   const [currentSrc, setCurrentSrc] = useState(src)
-
-  useEffect(() => {
-    setCurrentSrc(src)
-    setLoading(Boolean(src))
-  }, [src])
 
   return (
     <div className="relative">
@@ -135,15 +103,12 @@ function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...re
         className={`${className} ${loading ? 'opacity-70' : 'opacity-100'} transition-opacity duration-200`}
         onLoad={() => setLoading(false)}
         onError={(event) => {
-          if (currentSrc !== fallback) {
-            setCurrentSrc(fallback)
-            setLoading(true)
-          } else {
+          if (currentSrc === fallback) {
             setLoading(false)
+            return
           }
+          setCurrentSrc(fallback)
         }}
-        draggable={false}
-        onDragStart={(e) => e.preventDefault()}
         {...rest}
       />
     </div>
@@ -178,8 +143,7 @@ function FoodRow({ food, isLast, animate = true }) {
       className="relative flex gap-3 px-[13px] py-3.5 overflow-hidden"
     >
       <ImageWithLoader
-        src={getMainImage(food)}
-        alt={food.nomi}
+        src={food.rasm}
         className="h-[84px] w-[84px] shrink-0 rounded-2xl object-cover"
       />
 
@@ -189,7 +153,7 @@ function FoodRow({ food, isLast, animate = true }) {
         <div className="mt-2.5 flex items-center justify-between gap-2">
           <span className="flex items-baseline gap-2 text-[16px] font-bold leading-none text-slate-900">
             {formatPrice(food.narxi)} so'm
-            <span className="text-xs font-medium text-slate-500">/ {food["o'lchov"] || '1 porsiya'}</span>
+            <span className="text-xs font-medium text-slate-500">/ 1 porsiya</span>
           </span>
           <button
             type="button"
@@ -285,7 +249,6 @@ export default function App() {
   const catalogSwipeStart = useRef({ x: 0, y: 0, active: false, locked: false })
   const searchBlurTimeout = useRef(null)
   const searchContainerRef = useRef(null)
-  const slideSwipe = useRef({ start: 0, last: 0, active: false, id: null })
 
   const searchIndex = useMemo(
     () =>
@@ -444,32 +407,6 @@ export default function App() {
     if (detailFood) setDetailSlide(0)
   }, [detailFood])
 
-  const onSlidePointerDown = (event) => {
-    const x = event.clientX
-    slideSwipe.current = { start: x, last: x, active: true, id: event.pointerId ?? null }
-    event.currentTarget.setPointerCapture?.(event.pointerId)
-  }
-
-  const onSlidePointerMove = (event) => {
-    const state = slideSwipe.current
-    if (!state.active) return
-    if (state.id !== null && event.pointerId !== state.id) return
-    slideSwipe.current.last = event.clientX
-    event.preventDefault()
-  }
-
-  const onSlidePointerUp = (event, total) => {
-    const state = slideSwipe.current
-    if (!state.active) return
-    if (state.id !== null && event.pointerId !== state.id) return
-    const dx = (event.clientX ?? state.last) - state.start
-    const threshold = 20
-    if (Math.abs(dx) > threshold) {
-      setDetailSlide((prev) => (dx < 0 ? (prev + 1) % total : (prev - 1 + total) % total))
-    }
-    slideSwipe.current = { start: 0, last: 0, active: false, id: null }
-  }
-
   return (
     <motion.main
       initial={{ opacity: 0 }}
@@ -489,7 +426,7 @@ export default function App() {
             <img
               src="/logo.png"
               alt="Rayhon logotipi"
-              className="w-full min-h-[80px] h-full object-cover"
+              className=" w-full h-full object-cover"
             /></a>
             <p className="text-[#1bac4b] leading-none">taomlari menyusi</p>
           </div>
@@ -592,7 +529,7 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-[15px] shrink-0 pl-1">
-                {!searchActive && <div className="h-6 w-px bg-black/10" />}
+                <div className="h-6 w-px bg-black/10" />
                 {!searchActive && (
                   <button
                     type="button"
@@ -657,44 +594,13 @@ export default function App() {
             animate={{ scale: 1, opacity: 1 }}
             className="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl"
           >
-            {(() => {
-              const gallery = getGallery(detailFood)
-              const total = gallery.length || 1
-
-              return (
-                <>
-            <div
-              className="relative touch-pan-y"
-              onPointerDown={onSlidePointerDown}
-              onPointerMove={onSlidePointerMove}
-              onPointerUp={(e) => onSlidePointerUp(e, total)}
-            >
+            <div className="relative">
               <ImageWithLoader
-                src={gallery[detailSlide % total]}
+                src={(detailFood.galereya ?? [detailFood.rasm])[detailSlide % (detailFood.galereya?.length ?? 1)]}
                 alt={detailFood.nomi}
                 className="h-64 w-full object-cover"
               />
-              {total > 1 && (
-                <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
-                  <button
-                    type="button"
-                    aria-label="Oldingi rasm"
-                    onClick={() => setDetailSlide((prev) => (prev - 1 + total) % total)}
-                    className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    <ChevronLeft className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Keyingi rasm"
-                    onClick={() => setDetailSlide((prev) => (prev + 1) % total)}
-                    className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    <ChevronRight className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                  </button>
-                </div>
-              )}
-              <div className="absolute inset-x-0 top-0 flex justify-end p-3">
+              <div className="absolute inset-x-0 top-0 flex justify-between p-3">
                 <button
                   type="button"
                   className="rounded-full bg-black/60 p-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ml-auto"
@@ -703,26 +609,28 @@ export default function App() {
                 >
                   <X className="size-4" />
                 </button>
+                {(detailFood.galereya?.length ?? 1) > 1 && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="rounded-full bg-black/60 px-3 py-2 text-white text-sm font-semibold"
+                      onClick={() =>
+                        setDetailSlide((prev) => (prev - 1 + detailFood.galereya.length) % detailFood.galereya.length)
+                      }
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full bg-black/60 px-3 py-2 text-white text-sm font-semibold"
+                      onClick={() => setDetailSlide((prev) => (prev + 1) % detailFood.galereya.length)}
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-              {total > 1 && (
-                <div className="flex items-center justify-center gap-2 py-2">
-                  {gallery.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setDetailSlide(idx)}
-                      className={`h-2.5 w-2.5 rounded-full transition-all ${
-                        idx === detailSlide % total ? 'bg-[#1bac4b]' : 'bg-slate-300'
-                      }`}
-                      aria-label={`Rasm ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-                </>
-              )
-            })()}
 
             <div className="space-y-3 px-5 py-4">
               <div className="flex items-start justify-between gap-3">
@@ -732,7 +640,7 @@ export default function App() {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-[#1bac4b]">{formatPrice(detailFood.narxi)} so'm</div>
-                  <div className="text-xs text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
+                  <div className="text-xs text-slate-500">1 porsiya</div>
                 </div>
               </div>
               <p className="text-sm leading-4 text-slate-700">{detailFood.tarkibi}</p>
