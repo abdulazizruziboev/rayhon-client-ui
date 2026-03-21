@@ -22,16 +22,16 @@
   { "id": 19, "nomi": "Fri kartoshka", "narxi": 10000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Kartoshka", "rasmlar": ["https://picsum.photos/200?19"], "o'lchov": "1 porsiya" },
   { "id": 20, "nomi": "Pizza", "narxi": 45000, "mavjudligi": true, "kategoriya": "Fast food", "tarkibi": "Xamir, pishloq", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8ae8p5fO5SDVCFj-xEWTJaECdaCkzSx0jsA&s"], "o'lchov": "1 dona" },
 
-  { "id": 21, "nomi": "Shakarob", "narxi": 8000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Pomidor, bodring, piyoz", "rasmlar": ["https://cdn.beta.qalampir.uz/uploads/dm/f_Irpts58xjZPsQmWtJcYmV1pmVUif4B.jpg"], "o'lchov": "1 porsiya" },
-  { "id": 22, "nomi": "Olivye", "narxi": 15000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Kartoshka, kolbasa", "rasmlar": ["https://www.allrecipes.com/thmb/tjR3Pu92VFnZsvGUi3suFQRRHyc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/AR-234949-Authentic-Russian-Salad-Olivye-DDMFS-4x3-053676ad68d545d28396360573e0f9d0.jpg"], "o'lchov": "1 porsiya" },
-  { "id": 23, "nomi": "Vinegret", "narxi": 14000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Lavlagi, sabzi", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNUORqX-Ex9lx6gTGdkdRmmnYtw6R9Dw5Cig&s"], "o'lchov": "1 porsiya" },
+  { "id": 21, "nomi": "Shakarob", "narxi": 8000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Pomidor, bodring, piyoz", "rasmlar": ["https://picsum.photos/200?21"], "o'lchov": "1 porsiya" },
+  { "id": 22, "nomi": "Olivye", "narxi": 15000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Kartoshka, kolbasa", "rasmlar": ["https://picsum.photos/200?22"], "o'lchov": "1 porsiya" },
+  { "id": 23, "nomi": "Vinegret", "narxi": 14000, "mavjudligi": true, "kategoriya": "Salatlar", "tarkibi": "Lavlagi, sabzi", "rasmlar": ["https://picsum.photos/200?23"], "o'lchov": "1 porsiya" },
 
-  { "id": 24, "nomi": "Choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Qora choy", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-XuuQp0r8kiERMTfFadt65fsdcJOiYdC_Tg&s"], "o'lchov": "1 choynak" },
-  { "id": 25, "nomi": "Ko'k choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Ko'k choy", "rasmlar": ["https://cdn.gaiagoodhealth.com/wp-content/uploads/2024/08/07141124/green-tea-scaled.jpg"], "o'lchov": "1 choynak" },
-  { "id": 26, "nomi": "Coca-Cola 1L", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://www.melandrose.com/prodimages/2184-DEFAULT-l.jpg"], "o'lchov": "1 dona" },
-  { "id": 27, "nomi": "Fanta 1L", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIyrJN_3JnQoz0OTNNPxduJBs9WbCzJC-o0Q&s"], "o'lchov": "1 dona" },
-  { "id": 28, "nomi": "O'rik Sharbat", "narxi": 12000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "O'rikli sharbat", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMT8rtRPHVWDTg99brMhiwJQovzfLXUjpdYg&s"], "o'lchov": "1 stakan" },
+  { "id": 24, "nomi": "Choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Qora choy", "rasmlar": ["https://picsum.photos/200?24"], "o'lchov": "1 choynak" },
+  { "id": 25, "nomi": "Ko'k choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Ko'k choy", "rasmlar": ["https://picsum.photos/200?25"], "o'lchov": "1 choynak" },
+  { "id": 26, "nomi": "Coca-Cola", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://picsum.photos/200?26"], "o'lchov": "1 dona" },
+  { "id": 27, "nomi": "Fanta", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://picsum.photos/200?27"], "o'lchov": "1 dona" },
+  { "id": 28, "nomi": "Sharbat", "narxi": 12000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Mevali sharbat", "rasmlar": ["https://picsum.photos/200?28"], "o'lchov": "1 stakan" },
 
-  { "id": 29, "nomi": "Napoleon tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Krem, xamir", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT67_Yb-bdNN_EIDojUPQuokNEB1asOSvFZBA&s"], "o'lchov": "1 bo'lak" },
-  { "id": 30, "nomi": "Medovik tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Asal, krem", "rasmlar": ["https://pastry-workshop.com/wp-content/uploads/2019/12/medovik-1-4_opt.jpg"], "o'lchov": "1 bo'lak" }
+  { "id": 29, "nomi": "Napoleon tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Krem, xamir", "rasmlar": ["https://picsum.photos/200?29"], "o'lchov": "1 bo'lak" },
+  { "id": 30, "nomi": "Medovik tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Asal, krem", "rasmlar": ["https://picsum.photos/200?30"], "o'lchov": "1 bo'lak" }
 ]

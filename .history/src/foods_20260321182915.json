@@ -30,8 +30,8 @@
   { "id": 25, "nomi": "Ko'k choy", "narxi": 3000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Ko'k choy", "rasmlar": ["https://cdn.gaiagoodhealth.com/wp-content/uploads/2024/08/07141124/green-tea-scaled.jpg"], "o'lchov": "1 choynak" },
   { "id": 26, "nomi": "Coca-Cola 1L", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://www.melandrose.com/prodimages/2184-DEFAULT-l.jpg"], "o'lchov": "1 dona" },
   { "id": 27, "nomi": "Fanta 1L", "narxi": 10000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Gazli ichimlik", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIyrJN_3JnQoz0OTNNPxduJBs9WbCzJC-o0Q&s"], "o'lchov": "1 dona" },
-  { "id": 28, "nomi": "O'rik Sharbat", "narxi": 12000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "O'rikli sharbat", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMT8rtRPHVWDTg99brMhiwJQovzfLXUjpdYg&s"], "o'lchov": "1 stakan" },
+  { "id": 28, "nomi": "O'rik Sharbat", "narxi": 12000, "mavjudligi": true, "kategoriya": "Ichimliklar", "tarkibi": "Mevali sharbat", "rasmlar": ["https://picsum.photos/200?28"], "o'lchov": "1 stakan" },
 
-  { "id": 29, "nomi": "Napoleon tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Krem, xamir", "rasmlar": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT67_Yb-bdNN_EIDojUPQuokNEB1asOSvFZBA&s"], "o'lchov": "1 bo'lak" },
-  { "id": 30, "nomi": "Medovik tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Asal, krem", "rasmlar": ["https://pastry-workshop.com/wp-content/uploads/2019/12/medovik-1-4_opt.jpg"], "o'lchov": "1 bo'lak" }
+  { "id": 29, "nomi": "Napoleon tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Krem, xamir", "rasmlar": ["https://picsum.photos/200?29"], "o'lchov": "1 bo'lak" },
+  { "id": 30, "nomi": "Medovik tort", "narxi": 18000, "mavjudligi": true, "kategoriya": "Shirinliklar", "tarkibi": "Asal, krem", "rasmlar": ["https://picsum.photos/200?30"], "o'lchov": "1 bo'lak" }
 ]

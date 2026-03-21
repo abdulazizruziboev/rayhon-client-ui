@@ -125,14 +125,14 @@ function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...re
   return (
     <div className="relative">
       {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <div className="h-6 w-6 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin bg-white/70" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-sm">
+          <div className="h-6 w-6 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
         </div>
       )}
       <img
         src={currentSrc}
         alt={alt}
-        className={`${className} ${loading ? 'opacity-70' : 'opacity-100'} transition-opacity duration-200`}
+        className={`${className} ${loading ? 'blur-[2px] opacity-80' : 'blur-0 opacity-100'} transition-[filter,opacity] duration-250`}
         onLoad={() => setLoading(false)}
         onError={(event) => {
           if (currentSrc !== fallback) {
