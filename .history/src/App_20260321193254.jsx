@@ -499,7 +499,7 @@ export default function App() {
         >
 <div className="w-full flex flex-col items-center justify-center pt-6 gap-2">
   
-  <a href="/" className="mx-auto max-h-[70px] max-w-[320px] flex items-center justify-center outline-none">
+  <a href="/" className="mx-auto max-h-[70px] max-w-[300px] flex items-center justify-center">
     <img
       src="/logo.png"
       alt="Rayhon logotipi"
@@ -620,7 +620,7 @@ export default function App() {
                       setSearchOpen(true)
                       requestAnimationFrame(() => searchRef.current?.focus())
                     }}
-                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
+                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c]"
                   >
                     <Search className="size-5 text-[#18714776]" />
                   </button>

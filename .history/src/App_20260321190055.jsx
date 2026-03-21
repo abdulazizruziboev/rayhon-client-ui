@@ -133,11 +133,8 @@ function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...re
   return (
     <div className="relative overflow-hidden rounded-[12px]">
       {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm rounded-[12px]">
-          <div
-            className="h-7 w-7 rounded-full border-[3px] border-white/70 border-t-[#1bac4b] border-b-[#1bac4b] animate-[spin_0.9s_linear_infinite] shadow-[0_0_0_1px_rgba(0,0,0,0.04)]"
-            aria-label="Yuklanmoqda"
-          />
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-sm rounded-[12px]">
+          <div className="h-6 w-6 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
         </div>
       )}
       <img
@@ -488,7 +485,7 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="min-h-screen bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
+      className="min-h-screen bg-white p-3 text-slate-900 overflow-x-hidden *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
     >
       <section className="mx-auto max-w-7xl">
         <motion.div
@@ -497,13 +494,13 @@ export default function App() {
           transition={{ duration: 0.35, ease: 'easeOut' }}
           className="mb-4 px-1"
         >
-<div className="w-full flex flex-col items-center justify-center pt-6 gap-2">
+<div className="w-full flex flex-col items-center justify-center py-6 gap-2">
   
-  <a href="/" className="mx-auto max-h-[70px] max-w-[320px] flex items-center justify-center outline-none">
+  <a href="/" className="block">
     <img
       src="/logo.png"
       alt="Rayhon logotipi"
-      className="w-full h-full pointer-events-none"
+      className="h-[50px] sm:h-[70px] md:h-[90px] w-auto object-cover mx-auto "
     />
   </a>
 
@@ -514,7 +511,7 @@ export default function App() {
 </div>
         </motion.div>
 
-        <div className="!sticky !top-[0px] z-30 mb-4 py-2 pb-2 bg-white">
+        <div className="sticky top-0 z-20 mb-4 bg-white pb-2">
           <div className="relative">
             <AnimatePresence initial={false}>
               {searchActive && (
@@ -583,7 +580,7 @@ export default function App() {
               />
               <div
                 ref={categoryScrollRef}
-                className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
+                className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 no-scrollbar mt-1.5"
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
                 {categoryButtons.map((category, index) => {
@@ -597,10 +594,10 @@ export default function App() {
                       }}
                       type="button"
                       onClick={() => selectCategoryByIndex(index)}
-                      className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform active:scale-95 ${
+                      className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-[background] duration-200 outline-[#1bac4b] ${
                         isActive
-                          ? 'border-[#1bac4b] bg-[#1bac4b] text-white scale-[1.02]'
-                          : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
+                          ? 'border-[#1bac4b] bg-[#1bac4b] text-white'
+                          : 'border-black/10 bg-white/80 text-slate-700 hover:bg-white'
                       }`}
                     >
                       <Icon className="size-3.5" />
@@ -620,7 +617,7 @@ export default function App() {
                       setSearchOpen(true)
                       requestAnimationFrame(() => searchRef.current?.focus())
                     }}
-                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
+                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c]"
                   >
                     <Search className="size-5 text-[#18714776]" />
                   </button>

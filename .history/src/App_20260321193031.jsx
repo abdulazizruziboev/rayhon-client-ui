@@ -499,7 +499,7 @@ export default function App() {
         >
 <div className="w-full flex flex-col items-center justify-center pt-6 gap-2">
   
-  <a href="/" className="mx-auto max-h-[70px] max-w-[320px] flex items-center justify-center outline-none">
+  <a href="/" className="mx-auto max-h-[70px] flex items-center justify-center">
     <img
       src="/logo.png"
       alt="Rayhon logotipi"
@@ -597,10 +597,10 @@ export default function App() {
                       }}
                       type="button"
                       onClick={() => selectCategoryByIndex(index)}
-                      className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform active:scale-95 ${
+                      className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform ${
                         isActive
-                          ? 'border-[#1bac4b] bg-[#1bac4b] text-white scale-[1.02]'
-                          : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
+                          ? 'border-[#1bac4b] bg-[#1bac4b] text-white shadow-[0_10px_24px_rgba(27,172,75,0.18)] scale-[1.02]'
+                          : 'border-black/10 bg-white/85 text-slate-700 hover:bg-white hover:shadow-[0_6px_14px_rgba(0,0,0,0.08)]'
                       }`}
                     >
                       <Icon className="size-3.5" />
@@ -620,7 +620,7 @@ export default function App() {
                       setSearchOpen(true)
                       requestAnimationFrame(() => searchRef.current?.focus())
                     }}
-                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
+                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c]"
                   >
                     <Search className="size-5 text-[#18714776]" />
                   </button>
