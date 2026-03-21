@@ -651,7 +651,7 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.45 }} // slowed
-      className="min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
+      className="min-h-screen bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
       style={{ touchAction: 'manipulation' }} // allow native vertical scroll and horizontal gestures
       onPointerDown={onCatalogPointerDown}
       onPointerMove={onCatalogPointerMove}
@@ -788,6 +788,9 @@ export default function App() {
                     </div>
                   </div>
                   <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
+                  <div className="text-xs text-slate-500 mt-3">
+                    💡 Rasmni chapga-o'ngga surish uchun galereya, pastga surish uchun yopish
+                  </div>
                 </div>
               </>
             )
@@ -795,7 +798,7 @@ export default function App() {
         </motion.div>
       ) : (
         // Render main catalog page
-        <section className="mx-auto max-w-7xl flex flex-col flex-1 w-full"> {/* full-height column so swipe container can flex */}
+        <section className="mx-auto max-w-7xl">
           <motion.div
             initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -964,5 +967,5 @@ export default function App() {
         </section>
       )}
     </motion.main>
-   )
- }
+  )
+}

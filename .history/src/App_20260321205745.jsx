@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import foods from './foods.json'
-import { useAnimation, useMotionValue } from 'framer-motion'
 
 const FALLBACK_IMAGE = '/img-nf.png'
 
@@ -199,7 +198,7 @@ function FoodRow({ food, isLast, animate = true }) {
         initial: { opacity: 0, y: 10 },
         whileInView: { opacity: 1, y: 0 },
         viewport: { once: false, amount: 0.2 },
-        transition: { duration: 0.48, ease: 'easeOut' } // duration increased
+        transition: { duration: 0.28, ease: 'easeOut' }
       }
     : {}
 
@@ -364,17 +363,13 @@ export default function App() {
   const [catalogEdgeShadow, setCatalogEdgeShadow] = useState({ left: false, right: false })
   const [detailFood, setDetailFood] = useState(null)
   const [detailSlide, setDetailSlide] = useState(0)
-  const [dragY, setDragY] = useState(0)
-  const [dragProgress, setDragProgress] = useState(0)
-
   const searchRef = useRef(null)
   const categoryScrollRef = useRef(null)
   const categoryChipRefs = useRef([])
   const catalogSwipeStart = useRef({ x: 0, y: 0, active: false, locked: false })
   const searchBlurTimeout = useRef(null)
-
-  const slideSwipe = useRef({ startX: 0, startY: 0, lastX: 0, lastY: 0, active: false, id: null })
-  const pageSwipe = useRef({ startY: 0, lastY: 0, active: false, id: null })
+  const searchContainerRef = useRef(null)
+  const slideSwipe = useRef({ start: 0, last: 0, active: false, id: null })
   const openDetailPage = useCallback((food) => {
     if (!food?.mavjudligi) return
     const url = new URL(window.location.href)
@@ -473,69 +468,38 @@ export default function App() {
     selectCategoryByIndex(nextIndex)
   }
 
-  // Qo'shildi / O'zgartirildi: global catalog swipe handlers (start anywhere)
   const onCatalogPointerDown = (event) => {
-    // Ignore when search active or detail open
-    if (query.trim() || detailFood) return
-    // Only ignore text inputs and gallery (allow buttons/links)
-    if (event.target.closest('input, textarea, [data-gallery]')) return
-
-    const x = event.clientX
-    const y = event.clientY
+    if (query.trim()) return
+    // Don't hijack clicks on interactive elements (e.g., Batafsil button)
+    if (event.target.closest('button, a, input, [role="button"], [data-slide-control]')) return
     catalogSwipeStart.current = {
-      x,
-      y,
-      lastX: x,
-      lastY: y,
+      x: event.clientX,
+      y: event.clientY,
       active: true,
-      locked: false,
-      id: event.pointerId
+      locked: false
     }
-    // capture pointer on the main element so we continue receiving moves
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 
   const onCatalogPointerMove = (event) => {
     const state = catalogSwipeStart.current
     if (!state.active) return
-    // ensure same pointer
-    if (state.id != null && event.pointerId !== state.id) return
 
     const dx = event.clientX - state.x
     const dy = event.clientY - state.y
-    state.lastX = event.clientX
-    state.lastY = event.clientY
 
-    // if not locked yet, detect horizontal intent
-    if (!state.locked) {
-      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-        state.locked = true
-      } else if (Math.abs(dy) > 20 && Math.abs(dy) > Math.abs(dx)) {
-        // stronger vertical intent — bail out (do not lock horizontal)
-        state.active = false
-        try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
-      }
+    if (!state.locked && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+      state.locked = true
     }
-    // do not call preventDefault — allow vertical scroll
   }
 
   const onCatalogPointerUp = (event) => {
     const state = catalogSwipeStart.current
-    if (!state.active) {
-      // cleanup anyway if pointer belongs to us
-      if (state.id != null && event.pointerId === state.id) {
-        catalogSwipeStart.current = { x: 0, y: 0, active: false, locked: false }
-      }
-      return
-    }
-    // ensure same pointer
-    if (state.id != null && event.pointerId !== state.id) return
+    if (!state.active) return
 
-    const dx = (event.clientX ?? state.lastX) - state.x
-    const dy = (event.clientY ?? state.lastY) - state.y
-    const threshold = 60
-
-    if (state.locked && Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy)) {
+    const dx = event.clientX - state.x
+    const dy = event.clientY - state.y
+    if (state.locked && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) {
         setSwipeDirection(1)
         moveCategory(1)
@@ -545,9 +509,7 @@ export default function App() {
       }
     }
 
-    // cleanup
     catalogSwipeStart.current = { x: 0, y: 0, active: false, locked: false }
-    try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
   }
 
   useEffect(() => {
@@ -612,8 +574,7 @@ export default function App() {
   const onSlidePointerDown = (event) => {
     if (event.target?.closest?.('[data-slide-control]')) return
     const x = event.clientX
-    const y = event.clientY
-    slideSwipe.current = { startX: x, startY: y, lastX: x, lastY: y, active: true, id: event.pointerId ?? null }
+    slideSwipe.current = { start: x, last: x, active: true, id: event.pointerId ?? null }
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 
@@ -621,8 +582,7 @@ export default function App() {
     const state = slideSwipe.current
     if (!state.active) return
     if (state.id !== null && event.pointerId !== state.id) return
-    slideSwipe.current.lastX = event.clientX
-    slideSwipe.current.lastY = event.clientY
+    slideSwipe.current.last = event.clientX
     event.preventDefault()
   }
 
@@ -630,339 +590,298 @@ export default function App() {
     const state = slideSwipe.current
     if (!state.active) return
     if (state.id !== null && event.pointerId !== state.id) return
-    const dx = (event.clientX ?? state.lastX) - state.startX
-    const dy = (event.clientY ?? state.lastY) - state.startY
-    const thresholdX = 50
-    const thresholdY = 100
-    
-    if (Math.abs(dy) > Math.abs(dx) && dy > thresholdY) {
-      closeDetailPage()
-    } else if (Math.abs(dx) > thresholdX && Math.abs(dx) > Math.abs(dy)) {
+    const dx = (event.clientX ?? state.last) - state.start
+    const threshold = 20
+    if (Math.abs(dx) > threshold) {
       setDetailSlide((prev) => (dx < 0 ? (prev + 1) % total : (prev - 1 + total) % total))
     }
-    
-    setDragY(0)
-    setDragProgress(0)
-    slideSwipe.current = { startX: 0, startY: 0, lastX: 0, lastY: 0, active: false, id: null }
+    slideSwipe.current = { start: 0, last: 0, active: false, id: null }
   }
 
   return (
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.45 }} // slowed
-      className="min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
-      style={{ touchAction: 'manipulation' }} // allow native vertical scroll and horizontal gestures
-      onPointerDown={onCatalogPointerDown}
-      onPointerMove={onCatalogPointerMove}
-      onPointerUp={onCatalogPointerUp}
-      onPointerCancel={onCatalogPointerUp}
+      transition={{ duration: 0.25 }}
+      className="min-h-screen bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
     >
-      {detailFood ? (
+      <section className="mx-auto max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }} // slowed detail enter
-          className="mx-auto max-w-7xl"
-          style={{
-            opacity: Math.max(0.3, 1 - Math.abs(dragProgress) * 0.3)
-          }}
+          initial={{ y: -12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="mb-4 px-1"
         >
-          <div className="mb-4 px-1">
-            <button
-              type="button"
-              onClick={closeDetailPage}
-              className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 rounded-md"
-            >
-              <ChevronLeft className="h-5 w-5" />
-              Orqaga
-            </button>
-          </div>
-          {(() => {
-            const gallery = getGallery(detailFood)
-            const total = gallery.length || 1
+<div className="w-full flex items-center justify-start pt-6 gap-2">
+  <p className="text-[#1bac4b] text-[22px] leading-none text-start">
+    Taomlar menyusi
+  </p>
 
-            return (
-              <>
-                <motion.div
-                  className="relative mb-4 overflow-hidden rounded-2xl"
-                  style={{
-                    scale: Math.max(0.8, 1 - Math.abs(dragProgress) * 0.2),
-                    y: Math.max(0, dragY)
-                  }}
-                >
-                  <motion.div
-                    data-gallery
-                    drag="x"
-                    dragElastic={0.2}
-                    dragConstraints={{ left: 0, right: 0 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 28 }} // smoother, slightly slower spring
-                    onDrag={(event, info) => {
-                      const threshold = 50
-                      if (Math.abs(info.offset.x) > threshold) {
-                        if (info.offset.x > threshold && detailSlide > 0) {
-                          setDetailSlide((prev) => prev - 1)
-                          info.offset.x = 0
-                        } else if (info.offset.x < -threshold && detailSlide < total - 1) {
-                          setDetailSlide((prev) => prev + 1)
-                          info.offset.x = 0
-                        }
-                      }
-                    }}
-                    onPointerDown={onSlidePointerDown}
-                    onPointerMove={onSlidePointerMove}
-                    onPointerUp={(e) => onSlidePointerUp(e, total)}
-                    onPointerCancel={(e) => onSlidePointerUp(e, total)}
-                    className="relative cursor-grab active:cursor-grabbing touch-pan-y"
-                  >
-                    <ImageWithLoader
-                      src={gallery[detailSlide % total]}
-                      alt={detailFood.nomi}
-                      className="h-80 w-full rounded-2xl object-cover select-none pointer-events-none"
-                    />
-                    {total > 1 && (
-                      <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
-                        <button
-                          type="button"
-                          data-slide-control
-                          aria-label="Oldingi rasm"
-                          onClick={() => setDetailSlide((prev) => (prev - 1 + total) % total)}
-                          className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                        >
-                          <ChevronLeft className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                        </button>
-                        <button
-                          type="button"
-                          data-slide-control
-                          aria-label="Keyingi rasm"
-                          onClick={() => setDetailSlide((prev) => (prev + 1) % total)}
-                          className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                        >
-                          <ChevronRight className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                        </button>
-                      </div>
-                    )}
-                  </motion.div>
-                </motion.div>
-
-                {total > 1 && (
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    {gallery.map((_, idx) => (
-                      <motion.button
-                        key={idx}
-                        type="button"
-                        onClick={() => setDetailSlide(idx)}
-                        layoutId={`dot-${idx}`}
-                        className={`h-2.5 w-2.5 rounded-full transition-all ${
-                          idx === detailSlide % total ? 'bg-[#1bac4b]' : 'bg-slate-300'
-                        }`}
-                        aria-label={`Rasm ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <div className="space-y-4 px-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h1 className="text-2xl font-semibold text-slate-900">{detailFood.nomi}</h1>
-                      <p className="mt-1 text-sm text-slate-500">{detailFood.kategoriya}</p>
-                    </div>
-                    <div className="text-right">
-                      {(() => {
-                        const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(detailFood)
-                        return (
-                          <>
-                            <div className="flex items-center justify-end gap-2">
-                              <div className="text-xl font-bold text-[#1bac4b]">
-                                {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
-                              </div>
-                              {hasDiscount && (
-                                <span className="text-sm text-slate-400 line-through">{formatPrice(oldPrice)}</span>
-                              )}
-                            </div>
-                            <div className="text-sm text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-                  <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
-                </div>
-              </>
-            )
-          })()}
+</div>
         </motion.div>
-      ) : (
-        // Render main catalog page
-        <section className="mx-auto max-w-7xl flex flex-col flex-1 w-full"> {/* full-height column so swipe container can flex */}
-          <motion.div
-            initial={{ y: -12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="mb-4 px-1"
-          >
-            <div className="w-full flex items-center justify-start pt-6 gap-2">
-              <p className="text-[#1bac4b] text-[22px] leading-none text-start">
-                Taomlar menyusi
-              </p>
-            </div>
-          </motion.div>
 
-          <div className="!sticky !top-[0px] z-30 mb-4 py-2 pb-2 bg-white">
-            <div className="relative">
-              <AnimatePresence initial={false}>
-                {searchActive && (
-                  <motion.div
-                    key="search-bar"
-                    layout
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }} // slowed
-                    className="mb-2"
-                  >
-                    <div className="group flex items-center gap-2 rounded-full border border-[#1bac4b33] bg-white px-4 py-2.5 ring-1 ring-[#1bac4b] shadow-sm cursor-text">
-                      <Search className="size-5 text-[#18714776] group-focus-within:text-[#1bac4b]" />
-                      <Input
-                        ref={searchRef}
-                        value={query}
-                        onChange={(event) => {
-                          setQuery(event.target.value)
-                          setSearchOpen(true)
-                        }}
-                        onFocus={() => setSearchOpen(true)}
-                        onBlur={() => {
-                          clearTimeout(searchBlurTimeout.current)
-                          searchBlurTimeout.current = setTimeout(() => {
-                            if (!query) setSearchOpen(false)
-                          }, 120)
-                        }}
-                        placeholder="Qidirish..."
-                        className="h-7 border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
-                      />
-                      {query && (
-                        <button
-                          type="button"
-                          aria-label="Qidiruvni tozalash"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            setQuery('')
-                            searchRef.current?.focus()
-                          }}
-                          className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b]"
-                        >
-                          <X className="size-4" />
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }} // slowed header
-                className="relative flex items-center gap-2"
-              >
-                <div
-                  className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent transition-opacity duration-200  ${
-                    catalogEdgeShadow.left ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
-                <div
-                  className={`pointer-events-none absolute inset-y-0 ${searchActive ? 'right-0' : 'right-10'} z-10 w-8 bg-gradient-to-l from-white to-[#fff3] transition-opacity duration-200 ${
-                    catalogEdgeShadow.right ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
-                <div
-                  ref={categoryScrollRef}
-                  className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
-                  style={{ WebkitOverflowScrolling: 'touch' }}
+        <div className="!sticky !top-[0px] z-30 mb-4 py-2 pb-2 bg-white">
+          <div className="relative">
+            <AnimatePresence initial={false}>
+              {searchActive && (
+                <motion.div
+                  key="search-bar"
+                  layout
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.32, ease: 'easeInOut' }}
+                  className="mb-2"
                 >
-                  {categoryButtons.map((category, index) => {
-                    const Icon = category === 'Barchasi' ? Beef : getCategoryIcon(category)
-                    const isActive = index === activeCategoryIndex
-                    return (
-                      <button
-                        key={category}
-                        ref={(element) => {
-                          categoryChipRefs.current[index] = element
-                        }}
-                        type="button"
-                        onClick={() => selectCategoryByIndex(index)}
-                        className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform ${
-                          isActive
-                            ? 'border-[#1bac4b] bg-[#1bac4b] text-white'
-                            : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
-                        }`}
-                      >
-                        <Icon className="size-3.5" />
-                        {category}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div className="flex items-center gap-[15px] shrink-0 pl-1">
-                  {!searchActive && <div className="h-6 w-px bg-black/10" />}
-                  {!searchActive && (
-                    <button
-                      type="button"
-                      aria-label="Qidirish"
-                      onClick={() => {
+                  <div className="group flex items-center gap-2 rounded-full border border-[#1bac4b33] bg-white px-4 py-2.5 ring-1 ring-[#1bac4b] shadow-sm cursor-text">
+                    <Search className="size-5 text-[#18714776] group-focus-within:text-[#1bac4b]" />
+                    <Input
+                      ref={searchRef}
+                      value={query}
+                      onChange={(event) => {
+                        setQuery(event.target.value)
                         setSearchOpen(true)
-                        requestAnimationFrame(() => searchRef.current?.focus())
                       }}
-                      className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
-                    >
-                      <Search className="size-5 text-[#18714776]" />
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-
-          {query.trim() ? (
-            <section className="space-y-3">
-              {searchResults.length > 0 ? (
-                <>
-                  <div className="px-1">
-                    <h2 className="text-lg font-semibold text-slate-900">Qidiruv natijalari</h2>
-                    <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
+                      onFocus={() => setSearchOpen(true)}
+                      onBlur={() => {
+                        clearTimeout(searchBlurTimeout.current)
+                        searchBlurTimeout.current = setTimeout(() => {
+                          if (!query) setSearchOpen(false)
+                        }, 120)
+                      }}
+                      placeholder="Qidirish..."
+                      className="h-7 border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
+                    />
+                    {query && (
+                      <button
+                        type="button"
+                        aria-label="Qidiruvni tozalash"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setQuery('')
+                          searchRef.current?.focus()
+                        }}
+                        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b]"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    )}
                   </div>
-                  <SearchResultsList foods={attachDetailHandler(searchResults)} />
-                </>
-              ) : (
-                <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium text-slate-500">
-                  Taomlar topilmadi
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="relative flex items-center gap-2"
+            >
+              <div
+                className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent transition-opacity duration-200  ${
+                  catalogEdgeShadow.left ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+              <div
+                className={`pointer-events-none absolute inset-y-0 ${searchActive ? 'right-0' : 'right-10'} z-10 w-8 bg-gradient-to-l from-white to-[#fff3] transition-opacity duration-200 ${
+                  catalogEdgeShadow.right ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+              <div
+                ref={categoryScrollRef}
+                className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                {categoryButtons.map((category, index) => {
+                  const Icon = category === 'Barchasi' ? Beef : getCategoryIcon(category)
+                  const isActive = index === activeCategoryIndex
+                  return (
+                    <button
+                      key={category}
+                      ref={(element) => {
+                        categoryChipRefs.current[index] = element
+                      }}
+                      type="button"
+                      onClick={() => selectCategoryByIndex(index)}
+                      className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform active:scale-95 ${
+                        isActive
+                          ? 'border-[#1bac4b] bg-[#1bac4b] text-white scale-[1.02]'
+                          : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
+                      }`}
+                    >
+                      <Icon className="size-3.5" />
+                      {category}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="flex items-center gap-[15px] shrink-0 pl-1">
+                {!searchActive && <div className="h-6 w-px bg-black/10" />}
+                {!searchActive && (
+                  <button
+                    type="button"
+                    aria-label="Qidirish"
+                    onClick={() => {
+                      setSearchOpen(true)
+                      requestAnimationFrame(() => searchRef.current?.focus())
+                    }}
+                    className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
+                  >
+                    <Search className="size-5 text-[#18714776]" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {query.trim() ? (
+          <section className="space-y-3">
+            {searchResults.length > 0 ? (
+              <>
+                <div className="px-1">
+                  <h2 className="text-lg font-semibold text-slate-900">Qidiruv natijalari</h2>
+                  <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
+                </div>
+                <SearchResultsList foods={attachDetailHandler(searchResults)} />
+              </>
+            ) : (
+              <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium text-slate-500">
+                Taomlar topilmadi
+              </div>
+            )}
+          </section>
+        ) : (
+          <motion.section
+            key={activeCategoryLabel}
+            initial={{ opacity: 0, x: swipeDirection >= 0 ? 8 : -8, y: 4 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="space-y-3 touch-pan-y"
+            onPointerDown={onCatalogPointerDown}
+            onPointerMove={onCatalogPointerMove}
+            onPointerUp={onCatalogPointerUp}
+            onPointerCancel={onCatalogPointerUp}
+          >
+            <div className="px-1">
+              <h2 className="text-lg font-semibold text-slate-900">
+                {selectedCategory ? selectedCategory : 'Barcha taomlar'}
+              </h2>
+              <p className="text-xs text-slate-500">{activeFoods.length} ta taom</p>
+            </div>
+            <FoodList foods={attachDetailHandler(activeFoods)} />
+          </motion.section>
+        )}
+      </section>
+
+      {detailFood && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4">
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+          >
+            {(() => {
+              const gallery = getGallery(detailFood)
+              const total = gallery.length || 1
+
+              return (
+                <>
+            <div
+              className="relative touch-pan-y"
+              onPointerDown={onSlidePointerDown}
+              onPointerMove={onSlidePointerMove}
+              onPointerUp={(e) => onSlidePointerUp(e, total)}
+            >
+              <ImageWithLoader
+                src={gallery[detailSlide % total]}
+                alt={detailFood.nomi}
+                className="h-64 w-full object-cover"
+              />
+              {total > 1 && (
+                <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
+                  <button
+                    type="button"
+                    data-slide-control
+                    aria-label="Oldingi rasm"
+                    onClick={() => setDetailSlide((prev) => (prev - 1 + total) % total)}
+                    className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <ChevronLeft className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
+                  </button>
+                  <button
+                    type="button"
+                    data-slide-control
+                    aria-label="Keyingi rasm"
+                    onClick={() => setDetailSlide((prev) => (prev + 1) % total)}
+                    className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <ChevronRight className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
+                  </button>
                 </div>
               )}
-            </section>
-          ) : (
-            <motion.section
-              key={activeCategoryLabel}
-              initial={{ opacity: 0, x: swipeDirection >= 0 ? 12 : -12, y: 6 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.36, ease: 'easeOut' }} // slightly slower category switch
-              className="space-y-3 touch-pan-y"
-            >
-              <div className="px-1">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  {selectedCategory ? selectedCategory : 'Barcha taomlar'}
-                </h2>
-                <p className="text-xs text-slate-500">{activeFoods.length} ta taom</p>
+              <div className="absolute inset-x-0 top-0 flex justify-end p-3">
+                <button
+                  type="button"
+                  data-slide-control
+                  className="rounded-full bg-black/60 p-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ml-auto cursor-pointer"
+                  onClick={closeDetailPage}
+                  aria-label="Yopish"
+                >
+                  <X className="size-4 pointer-events-none" />
+                </button>
               </div>
-              {/* list area (global swipe handled by main) */}
-              <div className="pb-4"> {/* extra bottom spacing to separate list area like Telegram */}
-                <FoodList foods={attachDetailHandler(activeFoods)} />
+            </div>
+              {total > 1 && (
+                <div className="flex items-center justify-center gap-2 py-2">
+                  {gallery.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setDetailSlide(idx)}
+                      className={`h-2.5 w-2.5 rounded-full transition-all ${
+                        idx === detailSlide % total ? 'bg-[#1bac4b]' : 'bg-slate-300'
+                      }`}
+                      aria-label={`Rasm ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+                </>
+              )
+            })()}
+
+            <div className="space-y-3 px-5 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">{detailFood.nomi}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{detailFood.kategoriya}</p>
+                </div>
+                <div className="text-right">
+                  {(() => {
+                    const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(detailFood)
+                    return (
+                      <>
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="text-lg font-bold text-[#1bac4b]">
+                            {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
+                          </div>
+                          {hasDiscount && (
+                            <span className="text-xs text-slate-400 line-through">{formatPrice(oldPrice)}</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
+                      </>
+                    )
+                  })()}
+                </div>
               </div>
-            </motion.section>
-          )}
-        </section>
+              <p className="text-sm leading-4 text-slate-700">{detailFood.tarkibi}</p>
+            </div>
+          </motion.div>
+        </div>
       )}
     </motion.main>
-   )
- }
+  )
+}

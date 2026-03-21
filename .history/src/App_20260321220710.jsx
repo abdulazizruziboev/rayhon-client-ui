@@ -788,6 +788,9 @@ export default function App() {
                     </div>
                   </div>
                   <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
+                  <div className="text-xs text-slate-500 mt-3">
+                    💡 Rasmni chapga-o'ngga surish uchun galereya, pastga surish uchun yopish
+                  </div>
                 </div>
               </>
             )

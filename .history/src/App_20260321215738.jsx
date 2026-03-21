@@ -477,8 +477,8 @@ export default function App() {
   const onCatalogPointerDown = (event) => {
     // Ignore when search active or detail open
     if (query.trim() || detailFood) return
-    // Only ignore text inputs and gallery (allow buttons/links)
-    if (event.target.closest('input, textarea, [data-gallery]')) return
+    // Ignore interactive elements and gallery elements
+    if (event.target.closest('button, a, input, textarea, [role="button"], [data-slide-control], [data-gallery]')) return
 
     const x = event.clientX
     const y = event.clientY
@@ -510,13 +510,14 @@ export default function App() {
     if (!state.locked) {
       if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
         state.locked = true
-      } else if (Math.abs(dy) > 20 && Math.abs(dy) > Math.abs(dx)) {
-        // stronger vertical intent — bail out (do not lock horizontal)
+      } else if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+        // vertical intent — bail out (do not lock horizontal)
         state.active = false
+        // release pointer capture
         try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
       }
     }
-    // do not call preventDefault — allow vertical scroll
+    // keep not preventing default so vertical scroll continues
   }
 
   const onCatalogPointerUp = (event) => {
@@ -651,8 +652,8 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.45 }} // slowed
-      className="min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
-      style={{ touchAction: 'manipulation' }} // allow native vertical scroll and horizontal gestures
+      className="min-h-screen bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
+      style={{ touchAction: 'pan-y' }} // allow native vertical scroll
       onPointerDown={onCatalogPointerDown}
       onPointerMove={onCatalogPointerMove}
       onPointerUp={onCatalogPointerUp}
@@ -788,6 +789,9 @@ export default function App() {
                     </div>
                   </div>
                   <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
+                  <div className="text-xs text-slate-500 mt-3">
+                    💡 Rasmni chapga-o'ngga surish uchun galereya, pastga surish uchun yopish
+                  </div>
                 </div>
               </>
             )
@@ -795,7 +799,7 @@ export default function App() {
         </motion.div>
       ) : (
         // Render main catalog page
-        <section className="mx-auto max-w-7xl flex flex-col flex-1 w-full"> {/* full-height column so swipe container can flex */}
+        <section className="mx-auto max-w-7xl">
           <motion.div
             initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -964,5 +968,5 @@ export default function App() {
         </section>
       )}
     </motion.main>
-   )
- }
+  )
+}

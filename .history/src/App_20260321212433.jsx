@@ -199,7 +199,7 @@ function FoodRow({ food, isLast, animate = true }) {
         initial: { opacity: 0, y: 10 },
         whileInView: { opacity: 1, y: 0 },
         viewport: { once: false, amount: 0.2 },
-        transition: { duration: 0.48, ease: 'easeOut' } // duration increased
+        transition: { duration: 0.28, ease: 'easeOut' }
       }
     : {}
 
@@ -473,69 +473,38 @@ export default function App() {
     selectCategoryByIndex(nextIndex)
   }
 
-  // Qo'shildi / O'zgartirildi: global catalog swipe handlers (start anywhere)
   const onCatalogPointerDown = (event) => {
-    // Ignore when search active or detail open
-    if (query.trim() || detailFood) return
-    // Only ignore text inputs and gallery (allow buttons/links)
-    if (event.target.closest('input, textarea, [data-gallery]')) return
-
-    const x = event.clientX
-    const y = event.clientY
+    if (query.trim()) return
+    // Don't hijack clicks on interactive elements (e.g., Batafsil button)
+    if (event.target.closest('button, a, input, [role="button"], [data-slide-control]')) return
     catalogSwipeStart.current = {
-      x,
-      y,
-      lastX: x,
-      lastY: y,
+      x: event.clientX,
+      y: event.clientY,
       active: true,
-      locked: false,
-      id: event.pointerId
+      locked: false
     }
-    // capture pointer on the main element so we continue receiving moves
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 
   const onCatalogPointerMove = (event) => {
     const state = catalogSwipeStart.current
     if (!state.active) return
-    // ensure same pointer
-    if (state.id != null && event.pointerId !== state.id) return
 
     const dx = event.clientX - state.x
     const dy = event.clientY - state.y
-    state.lastX = event.clientX
-    state.lastY = event.clientY
 
-    // if not locked yet, detect horizontal intent
-    if (!state.locked) {
-      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-        state.locked = true
-      } else if (Math.abs(dy) > 20 && Math.abs(dy) > Math.abs(dx)) {
-        // stronger vertical intent — bail out (do not lock horizontal)
-        state.active = false
-        try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
-      }
+    if (!state.locked && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+      state.locked = true
     }
-    // do not call preventDefault — allow vertical scroll
   }
 
   const onCatalogPointerUp = (event) => {
     const state = catalogSwipeStart.current
-    if (!state.active) {
-      // cleanup anyway if pointer belongs to us
-      if (state.id != null && event.pointerId === state.id) {
-        catalogSwipeStart.current = { x: 0, y: 0, active: false, locked: false }
-      }
-      return
-    }
-    // ensure same pointer
-    if (state.id != null && event.pointerId !== state.id) return
+    if (!state.active) return
 
-    const dx = (event.clientX ?? state.lastX) - state.x
-    const dy = (event.clientY ?? state.lastY) - state.y
-    const threshold = 60
-
-    if (state.locked && Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy)) {
+    const dx = event.clientX - state.x
+    const dy = event.clientY - state.y
+    if (state.locked && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) {
         setSwipeDirection(1)
         moveCategory(1)
@@ -545,9 +514,7 @@ export default function App() {
       }
     }
 
-    // cleanup
     catalogSwipeStart.current = { x: 0, y: 0, active: false, locked: false }
-    try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
   }
 
   useEffect(() => {
@@ -650,19 +617,14 @@ export default function App() {
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.45 }} // slowed
-      className="min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
-      style={{ touchAction: 'manipulation' }} // allow native vertical scroll and horizontal gestures
-      onPointerDown={onCatalogPointerDown}
-      onPointerMove={onCatalogPointerMove}
-      onPointerUp={onCatalogPointerUp}
-      onPointerCancel={onCatalogPointerUp}
+      transition={{ duration: 0.25 }}
+      className="min-h-screen bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
     >
       {detailFood ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }} // slowed detail enter
+          transition={{ duration: 0.3 }}
           className="mx-auto max-w-7xl"
           style={{
             opacity: Math.max(0.3, 1 - Math.abs(dragProgress) * 0.3)
@@ -692,11 +654,9 @@ export default function App() {
                   }}
                 >
                   <motion.div
-                    data-gallery
                     drag="x"
                     dragElastic={0.2}
                     dragConstraints={{ left: 0, right: 0 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 28 }} // smoother, slightly slower spring
                     onDrag={(event, info) => {
                       const threshold = 50
                       if (Math.abs(info.offset.x) > threshold) {
@@ -788,6 +748,9 @@ export default function App() {
                     </div>
                   </div>
                   <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
+                  <div className="text-xs text-slate-500 mt-3">
+                    💡 Rasmni chapga-o'ngga surish uchun galereya, pastga surish uchun yopish
+                  </div>
                 </div>
               </>
             )
@@ -795,7 +758,7 @@ export default function App() {
         </motion.div>
       ) : (
         // Render main catalog page
-        <section className="mx-auto max-w-7xl flex flex-col flex-1 w-full"> {/* full-height column so swipe container can flex */}
+        <section className="mx-auto max-w-7xl">
           <motion.div
             initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -819,7 +782,7 @@ export default function App() {
                     initial={{ opacity: 0, y: -8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }} // slowed
+                    transition={{ duration: 0.32, ease: 'easeInOut' }}
                     className="mb-2"
                   >
                     <div className="group flex items-center gap-2 rounded-full border border-[#1bac4b33] bg-white px-4 py-2.5 ring-1 ring-[#1bac4b] shadow-sm cursor-text">
@@ -863,7 +826,7 @@ export default function App() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }} // slowed header
+                transition={{ duration: 0.35, ease: 'easeOut' }}
                 className="relative flex items-center gap-2"
               >
                 <div
@@ -892,9 +855,9 @@ export default function App() {
                         }}
                         type="button"
                         onClick={() => selectCategoryByIndex(index)}
-                        className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform ${
+                        className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-all duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform active:scale-95 ${
                           isActive
-                            ? 'border-[#1bac4b] bg-[#1bac4b] text-white'
+                            ? 'border-[#1bac4b] bg-[#1bac4b] text-white scale-[1.02]'
                             : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
                         }`}
                       >
@@ -944,10 +907,14 @@ export default function App() {
           ) : (
             <motion.section
               key={activeCategoryLabel}
-              initial={{ opacity: 0, x: swipeDirection >= 0 ? 12 : -12, y: 6 }}
+              initial={{ opacity: 0, x: swipeDirection >= 0 ? 8 : -8, y: 4 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.36, ease: 'easeOut' }} // slightly slower category switch
+              transition={{ duration: 0.2, ease: 'easeOut' }}
               className="space-y-3 touch-pan-y"
+              onPointerDown={onCatalogPointerDown}
+              onPointerMove={onCatalogPointerMove}
+              onPointerUp={onCatalogPointerUp}
+              onPointerCancel={onCatalogPointerUp}
             >
               <div className="px-1">
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -955,14 +922,11 @@ export default function App() {
                 </h2>
                 <p className="text-xs text-slate-500">{activeFoods.length} ta taom</p>
               </div>
-              {/* list area (global swipe handled by main) */}
-              <div className="pb-4"> {/* extra bottom spacing to separate list area like Telegram */}
-                <FoodList foods={attachDetailHandler(activeFoods)} />
-              </div>
+              <FoodList foods={attachDetailHandler(activeFoods)} />
             </motion.section>
           )}
         </section>
       )}
     </motion.main>
-   )
- }
+  )
+}
