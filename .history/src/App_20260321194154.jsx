@@ -88,22 +88,6 @@ function formatPrice(value) {
   return new Intl.NumberFormat('uz-UZ').format(value)
 }
 
-function getDiscountInfo(food) {
-  const raw = food?.chegirma
-  if (!raw) return { hasDiscount: false, oldPrice: food.narxi, newPrice: food.narxi, percent: 0 }
-  const parsed = parseFloat(String(raw).replace('%', ''))
-  if (Number.isNaN(parsed) || parsed <= 0) {
-    return { hasDiscount: false, oldPrice: food.narxi, newPrice: food.narxi, percent: 0 }
-  }
-  const newPrice = Math.max(0, Math.round(food.narxi * (1 - parsed / 100)))
-  return {
-    hasDiscount: true,
-    oldPrice: food.narxi,
-    newPrice,
-    percent: parsed
-  }
-}
-
 function sanitizeGallery(list = []) {
   return list
     .map((url) => (typeof url === 'string' ? url.trim() : ''))
@@ -216,23 +200,10 @@ function FoodRow({ food, isLast, animate = true }) {
         <div className="truncate text-[15px] font-semibold leading-5 text-slate-900">{food.nomi}</div>
         <p className="mt-1 truncate text-xs leading-5 text-slate-500">{food.tarkibi}</p>
         <div className="mt-2.5 flex items-center justify-between gap-2">
-          {(() => {
-            const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(food)
-            return (
-              <span className="flex items-baseline gap-2 leading-none">
-                <span className={`text-[16px] font-bold ${hasDiscount ? 'text-[#1bac4b]' : 'text-slate-900'}`}>
-                  {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
-                </span>
-                <span className="text-xs font-medium text-slate-500">/ {food["o'lchov"] || '1 porsiya'}</span>
-                {hasDiscount && (
-                  <span className="flex items-center gap-1 text-xs font-semibold text-rose-500">
-                    <span className="line-through text-slate-400">{formatPrice(oldPrice)} so'm</span>
-                    <span className="rounded-full bg-rose-50 px-2 py-0.5 text-rose-500">-{percent}%</span>
-                  </span>
-                )}
-              </span>
-            )
-          })()}
+          <span className="flex items-baseline gap-2 text-[16px] font-bold leading-none text-slate-900">
+            {formatPrice(food.narxi)} so'm
+            <span className="text-xs font-medium text-slate-500">/ {food["o'lchov"] || '1 porsiya'}</span>
+          </span>
           <button
             type="button"
             onClick={() => food.onOpenDetails?.(food)}
@@ -292,22 +263,9 @@ function SearchResultsList({ foods }) {
           >
             <span className="text-sm font-semibold text-slate-900 truncate">{food.nomi}</span>
             <span className="text-sm text-slate-300">|</span>
-            {(() => {
-              const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(food)
-              return (
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <span className={`text-sm font-semibold ${hasDiscount ? 'text-[#1bac4b]' : 'text-slate-900'}`}>
-                    {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
-                  </span>
-                  {hasDiscount && (
-                    <>
-                      <span className="text-[11px] text-slate-400 line-through">{formatPrice(oldPrice)}</span>
-                      <span className="text-[11px] font-semibold text-rose-500">-{percent}%</span>
-                    </>
-                  )}
-                </span>
-              )
-            })()}
+            <span className="text-sm font-semibold text-[#1bac4b] whitespace-nowrap">
+              {formatPrice(food.narxi)} so'm
+            </span>
             <span className="text-sm text-slate-300">|</span>
             <button
               type="button"
@@ -416,8 +374,6 @@ export default function App() {
 
   const onCatalogPointerDown = (event) => {
     if (query.trim()) return
-    // Don't hijack clicks on interactive elements (e.g., Batafsil button)
-    if (event.target.closest('button, a, input, [role="button"], [data-slide-control]')) return
     catalogSwipeStart.current = {
       x: event.clientX,
       y: event.clientY,
@@ -502,7 +458,6 @@ export default function App() {
   }, [detailFood])
 
   const onSlidePointerDown = (event) => {
-    if (event.target?.closest?.('[data-slide-control]')) return
     const x = event.clientX
     slideSwipe.current = { start: x, last: x, active: true, id: event.pointerId ?? null }
     event.currentTarget.setPointerCapture?.(event.pointerId)
@@ -742,7 +697,6 @@ export default function App() {
                 <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
                   <button
                     type="button"
-                    data-slide-control
                     aria-label="Oldingi rasm"
                     onClick={() => setDetailSlide((prev) => (prev - 1 + total) % total)}
                     className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -751,7 +705,6 @@ export default function App() {
                   </button>
                   <button
                     type="button"
-                    data-slide-control
                     aria-label="Keyingi rasm"
                     onClick={() => setDetailSlide((prev) => (prev + 1) % total)}
                     className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -763,12 +716,11 @@ export default function App() {
               <div className="absolute inset-x-0 top-0 flex justify-end p-3">
                 <button
                   type="button"
-                  data-slide-control
                   className="rounded-full bg-black/60 p-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ml-auto cursor-pointer"
                   onClick={() => setDetailFood(null)}
                   aria-label="Yopish"
                 >
-                  <X className="size-4 pointer-events-none" />
+                  <X className="size-4" />
                 </button>
               </div>
             </div>
@@ -798,25 +750,8 @@ export default function App() {
                   <p className="mt-1 text-sm text-slate-500">{detailFood.kategoriya}</p>
                 </div>
                 <div className="text-right">
-                  {(() => {
-                    const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(detailFood)
-                    return (
-                      <>
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="text-lg font-bold text-[#1bac4b]">
-                            {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
-                          </div>
-                          {hasDiscount && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="line-through text-slate-400">{formatPrice(oldPrice)}</span>
-                              <span className="rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-500">-{percent}%</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-xs text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
-                      </>
-                    )
-                  })()}
+                  <div className="text-lg font-bold text-[#1bac4b]">{formatPrice(detailFood.narxi)} so'm</div>
+                  <div className="text-xs text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
                 </div>
               </div>
               <p className="text-sm leading-4 text-slate-700">{detailFood.tarkibi}</p>
