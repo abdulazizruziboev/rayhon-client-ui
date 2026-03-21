@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Beef,
@@ -153,6 +153,7 @@ function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...re
         }}
         draggable={false}
         onDragStart={(e) => e.preventDefault()}
+        loading="lazy"
         {...rest}
       />
     </div>
@@ -226,7 +227,7 @@ function FoodRow({ food, isLast, animate = true }) {
   )
 }
 
-function FoodList({ foods, animate = true }) {
+const FoodList = memo(function FoodList({ foods, animate = true }) {
   return (
     <div className="overflow-hidden rounded-[22px] border border-black/10 bg-white">
       {foods.map((food, index) => (
@@ -239,7 +240,7 @@ function FoodList({ foods, animate = true }) {
       ))}
     </div>
   )
-}
+})
 
 function SearchResultsList({ foods }) {
   return (
