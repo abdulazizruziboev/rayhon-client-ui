@@ -16,26 +16,9 @@ import {
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import foods from './foods.json'
+import { useAnimation, useMotionValue } from 'framer-motion'
 
 const FALLBACK_IMAGE = '/img-nf.png'
-const DETAIL_SLIDE_TRANSITION = { type: 'spring', stiffness: 280, damping: 30, mass: 0.9 }
-const DETAIL_SLIDE_VARIANTS = {
-  enter: (direction) => ({
-    x: direction > 0 ? 120 : -120,
-    opacity: 0,
-    scale: 0.985
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1
-  },
-  exit: (direction) => ({
-    x: direction > 0 ? -120 : 120,
-    opacity: 0,
-    scale: 0.985
-  })
-}
 
 const TOKEN_SYNONYMS = {
   palov: ['plov', 'osh'],
@@ -146,18 +129,6 @@ function getGallery(food) {
 
 function getMainImage(food) {
   return getGallery(food)[0] || FALLBACK_IMAGE
-}
-
-function releasePointerCaptureSafely(target, pointerId) {
-  if (pointerId == null) return
-  try {
-    target?.releasePointerCapture?.(pointerId)
-  } catch {}
-}
-
-function wrapIndex(index, total) {
-  if (!total) return 0
-  return ((index % total) + total) % total
 }
 
 function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...rest }) {
@@ -393,7 +364,6 @@ export default function App() {
   const [catalogEdgeShadow, setCatalogEdgeShadow] = useState({ left: false, right: false })
   const [detailFood, setDetailFood] = useState(null)
   const [detailSlide, setDetailSlide] = useState(0)
-  const [detailSlideDirection, setDetailSlideDirection] = useState(0)
   const [dragY, setDragY] = useState(0)
   const [dragProgress, setDragProgress] = useState(0)
 
@@ -402,18 +372,9 @@ export default function App() {
   const categoryChipRefs = useRef([])
   const catalogSwipeStart = useRef({ x: 0, y: 0, active: false, locked: false })
   const searchBlurTimeout = useRef(null)
-  const detailScrollRef = useRef(null)
 
   const slideSwipe = useRef({ startX: 0, startY: 0, lastX: 0, lastY: 0, active: false, id: null })
-  const pageSwipe = useRef({
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    lastY: 0,
-    active: false,
-    lock: null,
-    id: null
-  })
+  const pageSwipe = useRef({ startY: 0, lastY: 0, active: false, id: null })
   const openDetailPage = useCallback((food) => {
     if (!food?.mavjudligi) return
     const url = new URL(window.location.href)
@@ -428,7 +389,6 @@ export default function App() {
     const params = new URLSearchParams(window.location.search)
     if (params.has('food')) {
       if (window.history.state && window.history.state.foodId) {
-        setDetailFood(null)
         window.history.back()
       } else {
         const url = new URL(window.location.href)
@@ -440,69 +400,6 @@ export default function App() {
       setDetailFood(null)
     }
   }, [])
-
-  const resetDetailSwipeState = useCallback(() => {
-    setDragY(0)
-    setDragProgress(0)
-    slideSwipe.current = { startX: 0, startY: 0, lastX: 0, lastY: 0, active: false, id: null }
-    pageSwipe.current = {
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      active: false,
-      lock: null,
-      id: null
-    }
-  }, [])
-
-  const dismissDetailPage = useCallback(() => {
-    closeDetailPage()
-  }, [closeDetailPage])
-
-  const focusSearchInput = useCallback(() => {
-    requestAnimationFrame(() => searchRef.current?.focus())
-  }, [])
-
-  const openSearch = useCallback(() => {
-    clearTimeout(searchBlurTimeout.current)
-    setSearchOpen(true)
-  }, [])
-
-  const closeSearch = useCallback(() => {
-    clearTimeout(searchBlurTimeout.current)
-    setSearchOpen(false)
-  }, [])
-
-  const handleSearchAction = useCallback(() => {
-    clearTimeout(searchBlurTimeout.current)
-
-    if (query) {
-      setQuery('')
-      setSearchOpen(true)
-      focusSearchInput()
-      return
-    }
-
-    closeSearch()
-  }, [closeSearch, focusSearchInput, query])
-
-  const changeDetailSlide = useCallback((step, total) => {
-    if (total <= 1 || !step) return
-
-    setDetailSlideDirection(step > 0 ? 1 : -1)
-    setDetailSlide((prev) => wrapIndex(prev + step, total))
-  }, [])
-
-  const jumpToDetailSlide = useCallback(
-    (nextIndex, total) => {
-      if (total <= 1 || nextIndex === detailSlide) return
-
-      setDetailSlideDirection(nextIndex > detailSlide ? 1 : -1)
-      setDetailSlide(wrapIndex(nextIndex, total))
-    },
-    [detailSlide]
-  )
 
   const searchIndex = useMemo(
     () =>
@@ -576,15 +473,6 @@ export default function App() {
     selectCategoryByIndex(nextIndex)
   }
 
-  useEffect(() => {
-    if (!searchOpen) return
-
-    const frameId = requestAnimationFrame(() => searchRef.current?.focus())
-    return () => cancelAnimationFrame(frameId)
-  }, [searchOpen])
-
-  useEffect(() => () => clearTimeout(searchBlurTimeout.current), [])
-
   // Qo'shildi / O'zgartirildi: global catalog swipe handlers (start anywhere)
   const onCatalogPointerDown = (event) => {
     // Ignore when search active or detail open
@@ -625,7 +513,7 @@ export default function App() {
       } else if (Math.abs(dy) > 20 && Math.abs(dy) > Math.abs(dx)) {
         // stronger vertical intent — bail out (do not lock horizontal)
         state.active = false
-        releasePointerCaptureSafely(event.currentTarget, event.pointerId)
+        try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
       }
     }
     // do not call preventDefault — allow vertical scroll
@@ -659,7 +547,7 @@ export default function App() {
 
     // cleanup
     catalogSwipeStart.current = { x: 0, y: 0, active: false, locked: false }
-    releasePointerCaptureSafely(event.currentTarget, event.pointerId)
+    try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch (e) {}
   }
 
   useEffect(() => {
@@ -702,13 +590,8 @@ export default function App() {
   }, [activeCategoryIndex, query])
 
   useEffect(() => {
-    resetDetailSwipeState()
-    if (detailFood) {
-      setDetailSlide(0)
-      setDetailSlideDirection(0)
-      if (detailScrollRef.current) detailScrollRef.current.scrollTop = 0
-    }
-  }, [detailFood, resetDetailSwipeState])
+    if (detailFood) setDetailSlide(0)
+  }, [detailFood])
 
   useEffect(() => {
     const syncWithUrl = () => {
@@ -738,140 +621,29 @@ export default function App() {
     const state = slideSwipe.current
     if (!state.active) return
     if (state.id !== null && event.pointerId !== state.id) return
-    const dx = event.clientX - state.startX
-    const dy = Math.max(0, event.clientY - state.startY)
     slideSwipe.current.lastX = event.clientX
     slideSwipe.current.lastY = event.clientY
-
-    if (dy > Math.abs(dx)) {
-      setDragY(dy)
-      setDragProgress(Math.min(1, dy / 220))
-    } else {
-      setDragY(0)
-      setDragProgress(0)
-    }
-
     event.preventDefault()
   }
 
-  const onSlidePointerUp = (event) => {
+  const onSlidePointerUp = (event, total) => {
     const state = slideSwipe.current
     if (!state.active) return
     if (state.id !== null && event.pointerId !== state.id) return
     const dx = (event.clientX ?? state.lastX) - state.startX
     const dy = (event.clientY ?? state.lastY) - state.startY
+    const thresholdX = 50
     const thresholdY = 100
-
-    releasePointerCaptureSafely(event.currentTarget, state.id)
-
+    
     if (Math.abs(dy) > Math.abs(dx) && dy > thresholdY) {
-      dismissDetailPage()
-    } else {
-      resetDetailSwipeState()
+      closeDetailPage()
+    } else if (Math.abs(dx) > thresholdX && Math.abs(dx) > Math.abs(dy)) {
+      setDetailSlide((prev) => (dx < 0 ? (prev + 1) % total : (prev - 1 + total) % total))
     }
-  }
-
-  const onGalleryDragEnd = (_event, info, total) => {
-    if (total <= 1) {
-      resetDetailSwipeState()
-      return
-    }
-
-    const offsetX = info.offset.x
-    const velocityX = info.velocity.x
-    const shouldMoveNext = offsetX < -72 || velocityX < -520
-    const shouldMovePrev = offsetX > 72 || velocityX > 520
-
-    if (shouldMoveNext) {
-      changeDetailSlide(1, total)
-    } else if (shouldMovePrev) {
-      changeDetailSlide(-1, total)
-    }
-
-    resetDetailSwipeState()
-  }
-
-  const onDetailPointerDown = (event) => {
-    if (event.target?.closest?.('button, a, input, textarea, select, label, [data-gallery]')) return
-
-    const x = event.clientX
-    const y = event.clientY
-    pageSwipe.current = {
-      startX: x,
-      startY: y,
-      lastX: x,
-      lastY: y,
-      active: true,
-      lock: null,
-      id: event.pointerId ?? null
-    }
-    event.currentTarget.setPointerCapture?.(event.pointerId)
-  }
-
-  const onDetailPointerMove = (event) => {
-    const state = pageSwipe.current
-    if (!state.active) return
-    if (state.id !== null && event.pointerId !== state.id) return
-
-    const dx = event.clientX - state.startX
-    const dy = event.clientY - state.startY
-
-    state.lastX = event.clientX
-    state.lastY = event.clientY
-
-    if (!state.lock) {
-      const absX = Math.abs(dx)
-      const absY = Math.abs(dy)
-
-      if (dx > 12 && absX > absY) {
-        state.lock = 'x'
-      } else if ((detailScrollRef.current?.scrollTop ?? 0) <= 4 && dy > 12 && absY > absX) {
-        state.lock = 'y'
-      } else if (absX > 20 || absY > 20) {
-        state.active = false
-        releasePointerCaptureSafely(event.currentTarget, state.id)
-      }
-    }
-
-    if (state.lock === 'x') {
-      setDragY(0)
-      setDragProgress(Math.min(1, Math.max(0, dx) / 320))
-      event.preventDefault()
-    }
-
-    if (state.lock === 'y') {
-      const nextDragY = Math.max(0, dy)
-      setDragY(nextDragY)
-      setDragProgress(Math.min(1, nextDragY / 220))
-      event.preventDefault()
-    }
-  }
-
-  const onDetailPointerUp = (event) => {
-    const state = pageSwipe.current
-
-    if (!state.active) {
-      if (state.id !== null && event.pointerId === state.id) {
-        resetDetailSwipeState()
-      }
-      return
-    }
-
-    if (state.id !== null && event.pointerId !== state.id) return
-
-    const dx = (event.clientX ?? state.lastX) - state.startX
-    const dy = (event.clientY ?? state.lastY) - state.startY
-    const closeByHorizontalSwipe = state.lock === 'x' && dx > 88 && dx > Math.abs(dy)
-    const closeByVerticalSwipe = state.lock === 'y' && dy > 110 && dy > Math.abs(dx)
-
-    releasePointerCaptureSafely(event.currentTarget, state.id)
-
-    if (closeByHorizontalSwipe || closeByVerticalSwipe) {
-      dismissDetailPage()
-      return
-    }
-
-    resetDetailSwipeState()
+    
+    setDragY(0)
+    setDragProgress(0)
+    slideSwipe.current = { startX: 0, startY: 0, lastX: 0, lastY: 0, active: false, id: null }
   }
 
   return (
@@ -879,53 +651,244 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.45 }} // slowed
-      className="relative min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
+      className="min-h-screen flex flex-col bg-white p-3 text-slate-900 *:selection:bg-[#1bac4b33] *:selection:text-[#1bac4b]"
       style={{ touchAction: 'manipulation' }} // allow native vertical scroll and horizontal gestures
       onPointerDown={onCatalogPointerDown}
       onPointerMove={onCatalogPointerMove}
       onPointerUp={onCatalogPointerUp}
       onPointerCancel={onCatalogPointerUp}
     >
-      <section
-        aria-hidden={Boolean(detailFood)}
-        className={`mx-auto max-w-7xl flex flex-col flex-1 w-full transition-opacity duration-200 ${
-          detailFood ? 'pointer-events-none select-none opacity-100' : 'opacity-100'
-        }`}
-      >
+      {detailFood ? (
         <motion.div
-          initial={{ y: -12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="mb-4 px-1"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }} // slowed detail enter
+          className="mx-auto max-w-7xl"
+          style={{
+            opacity: Math.max(0.3, 1 - Math.abs(dragProgress) * 0.3)
+          }}
         >
-          <div className="w-full flex items-center justify-start pt-6 gap-2">
-            <p className="text-[#1bac4b] text-[22px] leading-none text-start">
-              Taomlar menyusi
-            </p>
-          </div>
-        </motion.div>
-
-        <div className="!sticky !top-[0px] z-30 mb-4 bg-white py-2 pb-2">
-          <div className="relative min-h-[46px]">
-            <div
-              className={`flex items-center gap-2 transition-opacity duration-200 ${
-                searchActive ? 'pointer-events-none opacity-0' : 'opacity-100'
-              }`}
+          <div className="mb-4 px-1">
+            <button
+              type="button"
+              onClick={closeDetailPage}
+              className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 rounded-md"
             >
-              <div className="relative min-w-0 flex-1">
+              <ChevronLeft className="h-5 w-5" />
+              Orqaga
+            </button>
+          </div>
+          {(() => {
+            const gallery = getGallery(detailFood)
+            const total = gallery.length || 1
+
+            return (
+              <>
+                <motion.div
+                  className="relative mb-4 overflow-hidden rounded-2xl"
+                  style={{
+                    scale: Math.max(0.8, 1 - Math.abs(dragProgress) * 0.2),
+                    y: Math.max(0, dragY)
+                  }}
+                    onPointerDown={onPagePointerDown}
+  onPointerMove={onPagePointerMove}
+  onPointerUp={onPagePointerUp}
+  onPointerCancel={onPagePointerUp}
+  style={{
+    y: dragY,
+    scale: 1 - dragProgress * 0.1,
+    opacity: 1 - dragProgress * 0.5
+  }}
+                >
+                  <motion.div
+                    data-gallery
+                    drag="x"
+                    dragElastic={0.2}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 28 }} // smoother, slightly slower spring
+                    onDrag={(event, info) => {
+                      const threshold = 50
+                      if (Math.abs(info.offset.x) > threshold) {
+                        if (info.offset.x > threshold && detailSlide > 0) {
+                          setDetailSlide((prev) => prev - 1)
+                          info.offset.x = 0
+                        } else if (info.offset.x < -threshold && detailSlide < total - 1) {
+                          setDetailSlide((prev) => prev + 1)
+                          info.offset.x = 0
+                        }
+                      }
+                    }}
+                    onPointerDown={onSlidePointerDown}
+                    onPointerMove={onSlidePointerMove}
+                    onPointerUp={(e) => onSlidePointerUp(e, total)}
+                    onPointerCancel={(e) => onSlidePointerUp(e, total)}
+                    className="relative cursor-grab active:cursor-grabbing touch-pan-y"
+                  >
+                    <ImageWithLoader
+                      src={gallery[detailSlide % total]}
+                      alt={detailFood.nomi}
+                      className="h-80 w-full rounded-2xl object-cover select-none pointer-events-none"
+                    />
+                    {total > 1 && (
+                      <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
+                        <button
+                          type="button"
+                          data-slide-control
+                          aria-label="Oldingi rasm"
+                          onClick={() => setDetailSlide((prev) => (prev - 1 + total) % total)}
+                          className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                        >
+                          <ChevronLeft className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
+                        </button>
+                        <button
+                          type="button"
+                          data-slide-control
+                          aria-label="Keyingi rasm"
+                          onClick={() => setDetailSlide((prev) => (prev + 1) % total)}
+                          className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                        >
+                          <ChevronRight className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                </motion.div>
+
+                {total > 1 && (
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    {gallery.map((_, idx) => (
+                      <motion.button
+                        key={idx}
+                        type="button"
+                        onClick={() => setDetailSlide(idx)}
+                        layoutId={`dot-${idx}`}
+                        className={`h-2.5 w-2.5 rounded-full transition-all ${
+                          idx === detailSlide % total ? 'bg-[#1bac4b]' : 'bg-slate-300'
+                        }`}
+                        aria-label={`Rasm ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <div className="space-y-4 px-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h1 className="text-2xl font-semibold text-slate-900">{detailFood.nomi}</h1>
+                      <p className="mt-1 text-sm text-slate-500">{detailFood.kategoriya}</p>
+                    </div>
+                    <div className="text-right">
+                      {(() => {
+                        const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(detailFood)
+                        return (
+                          <>
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="text-xl font-bold text-[#1bac4b]">
+                                {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
+                              </div>
+                              {hasDiscount && (
+                                <span className="text-sm text-slate-400 line-through">{formatPrice(oldPrice)}</span>
+                              )}
+                            </div>
+                            <div className="text-sm text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
+                          </>
+                        )
+                      })()}
+                    </div>
+                  </div>
+                  <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
+                
+                </div>
+              </>
+            )
+          })()}
+        </motion.div>
+      ) : (
+        // Render main catalog page
+        <section className="mx-auto max-w-7xl flex flex-col flex-1 w-full"> {/* full-height column so swipe container can flex */}
+          <motion.div
+            initial={{ y: -12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="mb-4 px-1"
+          >
+            <div className="w-full flex items-center justify-start pt-6 gap-2">
+              <p className="text-[#1bac4b] text-[22px] leading-none text-start">
+                Taomlar menyusi
+              </p>
+            </div>
+          </motion.div>
+
+          <div className="!sticky !top-[0px] z-30 mb-4 py-2 pb-2 bg-white">
+            <div className="relative">
+              <AnimatePresence initial={false}>
+                {searchActive && (
+                  <motion.div
+                    key="search-bar"
+                    layout
+                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }} // slowed
+                    className="mb-2"
+                  >
+                    <div className="group flex items-center gap-2 rounded-full border border-[#1bac4b33] bg-white px-4 py-2.5 ring-1 ring-[#1bac4b] shadow-sm cursor-text">
+                      <Search className="size-5 text-[#18714776] group-focus-within:text-[#1bac4b]" />
+                      <Input
+                        ref={searchRef}
+                        value={query}
+                        onChange={(event) => {
+                          setQuery(event.target.value)
+                          setSearchOpen(true)
+                        }}
+                        onFocus={() => setSearchOpen(true)}
+                        onBlur={() => {
+                          clearTimeout(searchBlurTimeout.current)
+                          searchBlurTimeout.current = setTimeout(() => {
+                            if (!query) setSearchOpen(false)
+                          }, 120)
+                        }}
+                        placeholder="Qidirish..."
+                        className="h-7 border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-500 focus-visible:ring-0 flex-1"
+                      />
+                      {query && (
+                        <button
+                          type="button"
+                          aria-label="Qidiruvni tozalash"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            setQuery('')
+                            searchRef.current?.focus()
+                          }}
+                          className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b]"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }} // slowed header
+                className="relative flex items-center gap-2"
+              >
                 <div
-                  className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent transition-opacity duration-200 ${
+                  className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent transition-opacity duration-200  ${
                     catalogEdgeShadow.left ? 'opacity-100' : 'opacity-0'
                   }`}
                 />
                 <div
-                  className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white to-[#fff3] transition-opacity duration-200 ${
+                  className={`pointer-events-none absolute inset-y-0 ${searchActive ? 'right-0' : 'right-10'} z-10 w-8 bg-gradient-to-l from-white to-[#fff3] transition-opacity duration-200 ${
                     catalogEdgeShadow.right ? 'opacity-100' : 'opacity-0'
                   }`}
                 />
                 <div
                   ref={categoryScrollRef}
-                  className="flex items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
+                  className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
                   {categoryButtons.map((category, index) => {
@@ -951,264 +914,65 @@ export default function App() {
                     )
                   })}
                 </div>
-              </div>
 
-              <div className="flex shrink-0 items-center gap-2 pl-1">
-                <div className="h-6 w-px bg-black/10" />
-                <button
-                  type="button"
-                  aria-label="Qidirish"
-                  onClick={openSearch}
-                  className="flex size-11 items-center justify-center rounded-full border border-[#1bac4b33] bg-white shadow-sm transition duration-300 hover:bg-[#1bac4b1c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b]"
-                >
-                  <Search className="size-5 text-[#18714776]" />
-                </button>
-              </div>
-            </div>
-
-            <div
-              className={`absolute right-0 top-0 z-20 overflow-hidden rounded-full border bg-white transition-[width,height,padding,box-shadow,opacity] duration-300 ${
-                searchActive
-                  ? 'pointer-events-auto h-[46px] w-full border-[#1bac4b33] px-4 opacity-100 ring-1 ring-[#1bac4b]/95 shadow-[0_18px_36px_-28px_rgba(27,172,75,0.38)]'
-                  : 'pointer-events-none h-11 w-11 border-[#1bac4b33] px-0 opacity-0 shadow-sm'
-              }`}
-            >
-              <div
-                className="flex h-full items-center gap-2"
-                onClick={() => {
-                  if (searchActive) focusSearchInput()
-                }}
-              >
-                <Search className="size-5 shrink-0 text-[#1bac4b]" />
-
-                <div className="min-w-0 flex-1 overflow-hidden">
-                  <Input
-                    ref={searchRef}
-                    value={query}
-                    onChange={(event) => {
-                      setQuery(event.target.value)
-                      setSearchOpen(true)
-                    }}
-                    onFocus={() => setSearchOpen(true)}
-                    onBlur={() => {
-                      clearTimeout(searchBlurTimeout.current)
-                      searchBlurTimeout.current = setTimeout(() => {
-                        if (!query) closeSearch()
-                      }, 140)
-                    }}
-                    placeholder="Qidirish..."
-                    className="h-7 w-full border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
-                  />
+                <div className="flex items-center gap-[15px] shrink-0 pl-1">
+                  {!searchActive && <div className="h-6 w-px bg-black/10" />}
+                  {!searchActive && (
+                    <button
+                      type="button"
+                      aria-label="Qidirish"
+                      onClick={() => {
+                        setSearchOpen(true)
+                        requestAnimationFrame(() => searchRef.current?.focus())
+                      }}
+                      className="shrink-0 rounded-full border border-[#1bac4b33] bg-white p-2 shadow-sm transition-all duration-200 hover:border-[#1bac4b66] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] active:bg-[#1bac4b1c] active:scale-95"
+                    >
+                      <Search className="size-5 text-[#18714776]" />
+                    </button>
+                  )}
                 </div>
-
-                <button
-                  type="button"
-                  aria-label={query ? "Qidiruvni tozalash" : "Qidiruvni yopish"}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    handleSearchAction()
-                  }}
-                  className={`inline-flex shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] ${
-                    searchActive ? 'size-8 opacity-100' : 'size-0 opacity-0 pointer-events-none'
-                  }`}
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
 
-        {query.trim() ? (
-          <section className="space-y-3">
-            {searchResults.length > 0 ? (
-              <>
-                <div className="px-1">
-                  <h2 className="text-lg font-semibold text-slate-900">Qidiruv natijalari</h2>
-                  <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
+          {query.trim() ? (
+            <section className="space-y-3">
+              {searchResults.length > 0 ? (
+                <>
+                  <div className="px-1">
+                    <h2 className="text-lg font-semibold text-slate-900">Qidiruv natijalari</h2>
+                    <p className="text-sm text-slate-500">{searchResults.length} ta taom topildi</p>
+                  </div>
+                  <SearchResultsList foods={attachDetailHandler(searchResults)} />
+                </>
+              ) : (
+                <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium text-slate-500">
+                  Taomlar topilmadi
                 </div>
-                <SearchResultsList foods={attachDetailHandler(searchResults)} />
-              </>
-            ) : (
-              <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium text-slate-500">
-                Taomlar topilmadi
+              )}
+            </section>
+          ) : (
+            <motion.section
+              key={activeCategoryLabel}
+              initial={{ opacity: 0, x: swipeDirection >= 0 ? 12 : -12, y: 6 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.36, ease: 'easeOut' }} // slightly slower category switch
+              className="space-y-3 touch-pan-y"
+            >
+              <div className="px-1">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {selectedCategory ? selectedCategory : 'Barcha taomlar'}
+                </h2>
+                <p className="text-xs text-slate-500">{activeFoods.length} ta taom</p>
               </div>
-            )}
-          </section>
-        ) : (
-          <motion.section
-            key={activeCategoryLabel}
-            initial={{ opacity: 0, x: swipeDirection >= 0 ? 12 : -12, y: 6 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.36, ease: 'easeOut' }} // slightly slower category switch
-            className="space-y-3 touch-pan-y"
-          >
-            <div className="px-1">
-              <h2 className="text-lg font-semibold text-slate-900">
-                {selectedCategory ? selectedCategory : 'Barcha taomlar'}
-              </h2>
-              <p className="text-xs text-slate-500">{activeFoods.length} ta taom</p>
-            </div>
-            {/* list area (global swipe handled by main) */}
-            <div className="pb-4"> {/* extra bottom spacing to separate list area like Telegram */}
-              <FoodList foods={attachDetailHandler(activeFoods)} />
-            </div>
-          </motion.section>
-        )}
-      </section>
-
-      <AnimatePresence initial={false}>
-        {detailFood && (
-          <motion.div
-            key={`detail-${detailFood.id}`}
-            ref={detailScrollRef}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.28, ease: 'easeOut' }}
-            className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8"
-            onPointerDown={onDetailPointerDown}
-            onPointerMove={onDetailPointerMove}
-            onPointerUp={onDetailPointerUp}
-            onPointerCancel={onDetailPointerUp}
-            style={{
-              touchAction: 'pan-y',
-              opacity: Math.max(0.3, 1 - Math.abs(dragProgress) * 0.3)
-            }}
-          >
-            <div className="mx-auto max-w-7xl">
-              <div className="mb-4 px-1">
-                <button
-                  type="button"
-                  onClick={dismissDetailPage}
-                  className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 rounded-md"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                  Orqaga
-                </button>
+              {/* list area (global swipe handled by main) */}
+              <div className="pb-4"> {/* extra bottom spacing to separate list area like Telegram */}
+                <FoodList foods={attachDetailHandler(activeFoods)} />
               </div>
-              {(() => {
-                const gallery = getGallery(detailFood)
-                const total = gallery.length || 1
-
-                return (
-                  <>
-                    <motion.div
-                      className="relative mb-4 overflow-hidden rounded-2xl"
-                      style={{
-                        scale: Math.max(0.8, 1 - Math.abs(dragProgress) * 0.2),
-                        y: Math.max(0, dragY)
-                      }}
-                    >
-                      <div className="relative h-80 overflow-hidden rounded-2xl bg-slate-100">
-                        <AnimatePresence initial={false} custom={detailSlideDirection} mode="popLayout">
-                          <motion.div
-                            key={`${detailFood.id}-${detailSlide}`}
-                            custom={detailSlideDirection}
-                            variants={DETAIL_SLIDE_VARIANTS}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={DETAIL_SLIDE_TRANSITION}
-                            data-gallery
-                            drag={total > 1 ? 'x' : false}
-                            dragDirectionLock
-                            dragElastic={0.12}
-                            dragConstraints={{ left: 0, right: 0 }}
-                            onDragEnd={(event, info) => onGalleryDragEnd(event, info, total)}
-                            onPointerDown={onSlidePointerDown}
-                            onPointerMove={onSlidePointerMove}
-                            onPointerUp={onSlidePointerUp}
-                            onPointerCancel={onSlidePointerUp}
-                            className={`absolute inset-0 touch-pan-y ${total > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
-                          >
-                            <ImageWithLoader
-                              src={gallery[wrapIndex(detailSlide, total)]}
-                              alt={detailFood.nomi}
-                              className="h-80 w-full rounded-2xl object-cover select-none pointer-events-none"
-                            />
-                          </motion.div>
-                        </AnimatePresence>
-
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-
-                        {total > 1 && (
-                          <div className="pointer-events-none absolute inset-0 flex items-stretch justify-between">
-                            <button
-                              type="button"
-                              data-slide-control
-                              aria-label="Oldingi rasm"
-                              onClick={() => changeDetailSlide(-1, total)}
-                              className="pointer-events-auto group flex flex-1 items-center justify-start bg-gradient-to-r from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                            >
-                              <ChevronLeft className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                            </button>
-                            <button
-                              type="button"
-                              data-slide-control
-                              aria-label="Keyingi rasm"
-                              onClick={() => changeDetailSlide(1, total)}
-                              className="pointer-events-auto group flex flex-1 items-center justify-end bg-gradient-to-l from-transparent via-transparent to-transparent hover:from-black/15 hover:via-black/0 hover:to-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                            >
-                              <ChevronRight className="mx-3 h-6 w-6 text-white/0 group-hover:text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-150" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-
-                    {total > 1 && (
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        {gallery.map((_, idx) => (
-                          <motion.button
-                            key={idx}
-                            type="button"
-                            onClick={() => jumpToDetailSlide(idx, total)}
-                            layoutId={`dot-${idx}`}
-                            className={`h-2.5 w-2.5 rounded-full transition-all ${
-                              idx === detailSlide % total ? 'bg-[#1bac4b]' : 'bg-slate-300'
-                            }`}
-                            aria-label={`Rasm ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="space-y-4 px-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h1 className="text-2xl font-semibold text-slate-900">{detailFood.nomi}</h1>
-                          <p className="mt-1 text-sm text-slate-500">{detailFood.kategoriya}</p>
-                        </div>
-                        <div className="text-right">
-                          {(() => {
-                            const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(detailFood)
-                            return (
-                              <>
-                                <div className="flex items-center justify-end gap-2">
-                                  <div className="text-xl font-bold text-[#1bac4b]">
-                                    {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
-                                  </div>
-                                  {hasDiscount && (
-                                    <span className="text-sm text-slate-400 line-through">{formatPrice(oldPrice)}</span>
-                                  )}
-                                </div>
-                                <div className="text-sm text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
-                              </>
-                            )
-                          })()}
-                        </div>
-                      </div>
-                      <p className="text-base leading-5 text-slate-700">{detailFood.tarkibi}</p>
-                    </div>
-                  </>
-                )
-              })()}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.section>
+          )}
+        </section>
+      )}
     </motion.main>
    )
  }
