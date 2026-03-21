@@ -1130,7 +1130,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={dismissDetailPage}
-                  className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 px-2 rounded-md"
+                  className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3  rounded-md"
                 >
                   <ChevronLeft className="h-5 w-5" />
                   Orqaga

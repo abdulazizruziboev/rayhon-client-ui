@@ -1057,7 +1057,7 @@ export default function App() {
                     event.stopPropagation()
                     handleSearchAction()
                   }}
-                  className={`inline-flex shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer ${
+                  className={`inline-flex shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] ${
                     searchActive ? 'size-8 opacity-100' : 'size-0 opacity-0 pointer-events-none'
                   }`}
                 >
@@ -1130,7 +1130,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={dismissDetailPage}
-                  className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 px-2 rounded-md"
+                  className="flex items-center gap-2 text-[#1bac4b] hover:text-emerald-600 hover:bg-[#1bac4b]/10 transition-colors cursor-pointer py-3 rounded-md"
                 >
                   <ChevronLeft className="h-5 w-5" />
                   Orqaga
