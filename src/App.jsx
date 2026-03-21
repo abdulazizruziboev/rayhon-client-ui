@@ -11,7 +11,8 @@ import {
   Search,
   Soup,
   Wine,
-  X
+  X,
+  ChevronRight as ChevronRightIcon
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import foods from './foods.json'
@@ -204,7 +205,17 @@ function FoodRow({ food, isLast, animate = true }) {
   return (
     <Wrapper
       {...motionProps}
-      className="relative flex gap-3 px-[13px] py-3.5 overflow-hidden"
+      role={food.mavjudligi ? 'button' : undefined}
+      tabIndex={food.mavjudligi ? 0 : -1}
+      onClick={() => food.mavjudligi && food.onOpenDetails?.(food)}
+      onKeyDown={(e) => {
+        if (!food.mavjudligi) return
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          food.onOpenDetails?.(food)
+        }
+      }}
+      className={`relative flex gap-3 px-[13px] py-3.5 overflow-hidden ${food.mavjudligi ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <ImageWithLoader
         src={getMainImage(food)}
@@ -217,7 +228,7 @@ function FoodRow({ food, isLast, animate = true }) {
         <p className="mt-1 truncate text-xs leading-5 text-slate-500">{food.tarkibi}</p>
         <div className="mt-2.5 flex items-center justify-between gap-2">
           {(() => {
-            const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(food)
+            const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(food)
             return (
               <span className="flex items-baseline gap-2 leading-none">
                 <span className={`text-[16px] font-bold ${hasDiscount ? 'text-[#1bac4b]' : 'text-slate-900'}`}>
@@ -225,9 +236,8 @@ function FoodRow({ food, isLast, animate = true }) {
                 </span>
                 <span className="text-xs font-medium text-slate-500">/ {food["o'lchov"] || '1 porsiya'}</span>
                 {hasDiscount && (
-                  <span className="flex items-center gap-1 text-xs font-semibold text-rose-500">
-                    <span className="line-through text-slate-400">{formatPrice(oldPrice)} so'm</span>
-                    <span className="rounded-full bg-rose-50 px-2 py-0.5 text-rose-500">-{percent}%</span>
+                  <span className="text-xs font-semibold text-slate-400 line-through">
+                    {formatPrice(oldPrice)} so'm
                   </span>
                 )}
               </span>
@@ -235,18 +245,32 @@ function FoodRow({ food, isLast, animate = true }) {
           })()}
           <button
             type="button"
-            onClick={() => food.onOpenDetails?.(food)}
+            aria-label="Batafsil ko'rish"
+            onClick={(e) => {
+              e.stopPropagation()
+              food.onOpenDetails?.(food)
+            }}
             disabled={!food.mavjudligi}
-            className={`text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] ${
+            className={`flex items-center justify-center rounded-full p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] ${
               food.mavjudligi
                 ? 'text-[#1bac4b] hover:text-emerald-600'
-                : 'text-slate-400 cursor-not-allowed'
+                : 'text-slate-300 cursor-not-allowed'
             }`}
           >
-            Batafsil
+            <ChevronRightIcon className="h-4 w-4" />
           </button>
         </div>
       </div>
+
+      {(() => {
+        const { hasDiscount, percent } = getDiscountInfo(food)
+        if (!hasDiscount) return null
+        return (
+          <div className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-rose-50 px-2.5 py-1 text-[12px] font-semibold text-rose-500 shadow-sm">
+            -{percent}%
+          </div>
+        )
+      })()}
 
       {!food.mavjudligi && (
         <div className="pointer-events-none absolute inset-0 rounded-2xl bg-white/70 backdrop-blur-[2px] flex items-center justify-center text-sm font-semibold text-slate-700">
@@ -278,7 +302,11 @@ function SearchResultsList({ foods }) {
   return (
     <ul className="overflow-hidden rounded-[22px] border border-black/10 bg-white divide-y divide-black/10">
       {foods.map((food) => (
-        <li key={food.id} className="relative px-4 py-3 flex items-center">
+        <li
+          key={food.id}
+          className="relative px-4 py-3 flex items-center cursor-pointer"
+          onClick={() => food.mavjudligi && food.onOpenDetails?.(food)}
+        >
           {!food.mavjudligi && (
             <div className="absolute inset-0 flex items-center justify-center pl-2 text-xs font-semibold text-[14px]  
             ">
@@ -293,17 +321,14 @@ function SearchResultsList({ foods }) {
             <span className="text-sm font-semibold text-slate-900 truncate">{food.nomi}</span>
             <span className="text-sm text-slate-300">|</span>
             {(() => {
-              const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(food)
+              const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(food)
               return (
                 <span className="flex items-center gap-1 whitespace-nowrap">
                   <span className={`text-sm font-semibold ${hasDiscount ? 'text-[#1bac4b]' : 'text-slate-900'}`}>
                     {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
                   </span>
                   {hasDiscount && (
-                    <>
-                      <span className="text-[11px] text-slate-400 line-through">{formatPrice(oldPrice)}</span>
-                      <span className="text-[11px] font-semibold text-rose-500">-{percent}%</span>
-                    </>
+                    <span className="text-[11px] text-slate-400 line-through">{formatPrice(oldPrice)}</span>
                   )}
                 </span>
               )
@@ -311,13 +336,17 @@ function SearchResultsList({ foods }) {
             <span className="text-sm text-slate-300">|</span>
             <button
               type="button"
-              onClick={() => food.onOpenDetails?.(food)}
+              onClick={(e) => {
+                e.stopPropagation()
+                food.onOpenDetails?.(food)
+              }}
               disabled={!food.mavjudligi}
-              className={`text-xs font-semibold ${
-                food.mavjudligi ? 'text-[#1bac4b] hover:text-emerald-600' : 'text-slate-400 cursor-not-allowed'
+              aria-label="Batafsil ko'rish"
+              className={`flex items-center justify-center rounded-full p-2 ${
+                food.mavjudligi ? 'text-[#1bac4b] hover:text-emerald-600' : 'text-slate-300 cursor-not-allowed'
               }`}
             >
-              Batafsil
+              <ChevronRightIcon className="h-4 w-4" />
             </button>
           </div>
         </li>
@@ -341,6 +370,31 @@ export default function App() {
   const searchBlurTimeout = useRef(null)
   const searchContainerRef = useRef(null)
   const slideSwipe = useRef({ start: 0, last: 0, active: false, id: null })
+  const openDetailPage = useCallback((food) => {
+    if (!food?.mavjudligi) return
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('food') !== String(food.id)) {
+      url.searchParams.set('food', food.id)
+      window.history.pushState({ foodId: food.id }, '', url)
+    }
+    setDetailFood(food)
+  }, [])
+
+  const closeDetailPage = useCallback(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('food')) {
+      if (window.history.state && window.history.state.foodId) {
+        window.history.back()
+      } else {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('food')
+        window.history.replaceState({}, '', url)
+        setDetailFood(null)
+      }
+    } else {
+      setDetailFood(null)
+    }
+  }, [])
 
   const searchIndex = useMemo(
     () =>
@@ -397,7 +451,7 @@ export default function App() {
   const activeCategoryIndex = selectedCategory ? categories.indexOf(selectedCategory) + 1 : 0
   const activeCategoryLabel = selectedCategory ?? 'Barchasi'
   const activeFoods = selectedCategory ? groupedFoods[selectedCategory] ?? [] : Object.values(groupedFoods).flat()
-  const attachDetailHandler = (list) => list.map((item) => ({ ...item, onOpenDetails: setDetailFood }))
+  const attachDetailHandler = (list) => list.map((item) => ({ ...item, onOpenDetails: openDetailPage }))
   const searchActive = searchOpen || Boolean(query)
 
   const selectCategoryByIndex = (nextIndex) => {
@@ -500,6 +554,22 @@ export default function App() {
   useEffect(() => {
     if (detailFood) setDetailSlide(0)
   }, [detailFood])
+
+  useEffect(() => {
+    const syncWithUrl = () => {
+      const params = new URLSearchParams(window.location.search)
+      const foodId = params.get('food')
+      if (foodId) {
+        const found = foods.find((f) => String(f.id) === String(foodId))
+        setDetailFood(found || null)
+      } else {
+        setDetailFood(null)
+      }
+    }
+    syncWithUrl()
+    window.addEventListener('popstate', syncWithUrl)
+    return () => window.removeEventListener('popstate', syncWithUrl)
+  }, [])
 
   const onSlidePointerDown = (event) => {
     if (event.target?.closest?.('[data-slide-control]')) return
@@ -765,7 +835,7 @@ export default function App() {
                   type="button"
                   data-slide-control
                   className="rounded-full bg-black/60 p-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ml-auto cursor-pointer"
-                  onClick={() => setDetailFood(null)}
+                  onClick={closeDetailPage}
                   aria-label="Yopish"
                 >
                   <X className="size-4 pointer-events-none" />
@@ -799,7 +869,7 @@ export default function App() {
                 </div>
                 <div className="text-right">
                   {(() => {
-                    const { hasDiscount, oldPrice, newPrice, percent } = getDiscountInfo(detailFood)
+                    const { hasDiscount, oldPrice, newPrice } = getDiscountInfo(detailFood)
                     return (
                       <>
                         <div className="flex items-center justify-end gap-2">
@@ -807,10 +877,7 @@ export default function App() {
                             {formatPrice(hasDiscount ? newPrice : oldPrice)} so'm
                           </div>
                           {hasDiscount && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="line-through text-slate-400">{formatPrice(oldPrice)}</span>
-                              <span className="rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-500">-{percent}%</span>
-                            </div>
+                            <span className="text-xs text-slate-400 line-through">{formatPrice(oldPrice)}</span>
                           )}
                         </div>
                         <div className="text-xs text-slate-500">{detailFood["o'lchov"] || '1 porsiya'}</div>
