@@ -116,29 +116,20 @@ function getMainImage(food) {
 function ImageWithLoader({ src, alt, className, fallback = FALLBACK_IMAGE, ...rest }) {
   const [loading, setLoading] = useState(Boolean(src))
   const [currentSrc, setCurrentSrc] = useState(src)
-  const imgRef = useRef(null)
 
   useEffect(() => {
     setCurrentSrc(src)
     setLoading(Boolean(src))
   }, [src])
 
-  useEffect(() => {
-    const img = imgRef.current
-    if (img && img.complete && img.naturalWidth > 0) {
-      setLoading(false)
-    }
-  }, [currentSrc])
-
   return (
     <div className="relative overflow-hidden rounded-[12px]">
       {loading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-sm rounded-[12px]">
-          <div className="h-6 w-6 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          <div className="h-6 w-6 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin " />
         </div>
       )}
       <img
-        ref={imgRef}
         src={currentSrc}
         alt={alt}
         className={`${className} ${loading ? 'blur-[2px] opacity-80' : 'blur-0 opacity-100'} transition-[filter,opacity] duration-250 rounded-[12px]`}
