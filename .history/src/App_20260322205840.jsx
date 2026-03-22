@@ -1079,7 +1079,7 @@ export default function App() {
       <div className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full p-[3px]">
         
         {/* loader */}
-        {!loadedImages[category] && (
+        {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-[#1bac4b]" />
           </div>

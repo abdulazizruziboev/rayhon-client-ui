@@ -1080,10 +1080,10 @@ export default function App() {
         
         {/* loader */}
         {!loadedImages[category] && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-[#1bac4b]" />
-          </div>
-        )}
+  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100">
+    <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-[#1bac4b]" />
+  </div>
+)}
 
         <img
           src={`${categoryImages[category]}?t=${category}`}

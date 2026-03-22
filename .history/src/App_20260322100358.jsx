@@ -35,7 +35,6 @@ const CATALOG_PAGE_VARIANTS = {
 }
 const LOADED_IMAGE_CACHE = new Set()
 
-
 const TOKEN_SYNONYMS = {
   palov: ['plov', 'osh'],
   plov: ['palov', 'osh'],
@@ -391,7 +390,6 @@ export default function App() {
   const [detailTrackDragging, setDetailTrackDragging] = useState(false)
   const [dragY, setDragY] = useState(0)
   const [dragProgress, setDragProgress] = useState(0)
-  const [loadedImages, setLoadedImages] = useState({})
 
   const searchRef = useRef(null)
   const categoryScrollRef = useRef(null)
@@ -1036,8 +1034,12 @@ export default function App() {
         </motion.div>
 
         <div className="sticky top-0 z-40 mb-4 bg-white py-2 pb-2 px-1" id='sticky-part'>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <div className="relative min-h-[46px]">
+            <div
+              className={`flex items-center gap-2 transition-opacity duration-200 ${
+                searchActive ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
+            >
               <div className="relative min-w-0 flex-1">
                 <div
                   className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent transition-opacity duration-200 ${
@@ -1052,123 +1054,101 @@ export default function App() {
                 <div
                   ref={categoryScrollRef}
                   data-catalog-swipe
-                  className="flex items-center gap-3.5 overflow-x-auto pb-1 px-1.5 py-3 no-scrollbar mt-1.5"
+                  className="flex items-center gap-2 overflow-x-auto pb-1 px-[1px] no-scrollbar mt-1.5"
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
-{categoryButtons.map((category, index) => {
-  const isActive = index === activeCategoryIndex
-  const categoryImages = {
-    "Barchasi": "https://zira.uz/wp-content/uploads/2020/08/kai--natma-shurpa.jpg",
-    "Asosiy taom": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKp34NJDWOVx_b-Ie7JYemCuNQmGC_7HcIPQ&s",
-    "Sho'rvalar": "https://ferganatourism.uz/thumb/2/v4SvIoQPtzzx7mlgX_H1gg/1200r1000/d/shurpa-3.jpg",
-    "Fast food": "https://zamin.uz/uploads/posts/2025-05/b356738731_high-protein-fast-food-1.webp",
-    "Grill": "https://assets.epicurious.com/photos/5b843bce1abfc56568396369/1:1/w_2560%2Cc_limit/Grilled-Chicken-with-Mustard-Sauce-and-Tomato-Salad-recipe-2-22082018.jpg",
-    "Milliy taom":"https://uzbekistan.travel/storage/app/media/wepb/gastro_turizm/cropped-images/%D0%94%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD%20%D0%B1%D0%B5%D0%B7%20%D0%BD%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-0-0-0-0-1740051502.webp",
-    "Salatlar":"https://upload.wikimedia.org/wikipedia/commons/3/3f/Mixed_Green_Salad_%2815977106804%29.jpg",
-    "Ichimliklar":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSItESPNRbAW2y3L4jHwV0Pwo87gtfDRx7dvw&s",
-    "Shirinliklar":"https://data.daryo.uz/media/cache/2022/02/1632406600_60-mykaleidoscope-ru-p-raznie-sladosti-krasivo-foto-62-1332x850.jpg"
-  }
-  return (
-    <div
-      key={category}
-      ref={(el) => (categoryChipRefs.current[index] = el)}
-      onClick={() => selectCategoryByIndex(index)}
-      className="flex shrink-0 cursor-pointer flex-col items-center gap-1"
-    >
-      {/* IMAGE */}
-      <div className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full p-[3px]">
-        
-        {/* loader */}
-        {!loadedImages[category] && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-[#1bac4b]" />
-          </div>
-        )}
-
-        <img
-          src={`${categoryImages[category]}?t=${category}`}
-          alt={category}
-          onLoad={() =>
-            setLoadedImages(prev => ({ ...prev, [category]: true }))
-          }
-          className={`h-full w-full rounded-full object-cover transition-all duration-500
-            ${loadedImages[category] ? "blur-0 scale-100" : "blur-md scale-105"}
-          `}
-        />
-
-        {/* ring */}
-        <div
-          className={`absolute inset-0 rounded-full ring-2 ring-offset-2 ring-offset-white transition-all duration-300
-            ${
-              isActive
-                ? "ring-[#1bac4b]"
-                : "ring-gray-300"
-            }
-          `}
-        />
-      </div>
-
-      {/* TEXT */}
-      <span
-        className={`text-[12px] font-medium ${
-          isActive ? "text-[#1bac4b]" : "text-gray-600"
-        }`}
-      >
-        {category}
-      </span>
-    </div>
-  )
-})}
+                  {categoryButtons.map((category, index) => {
+                    const Icon = category === 'Barchasi' ? Beef : getCategoryIcon(category)
+                    const isActive = index === activeCategoryIndex
+                    return (
+                      <button
+                        key={category}
+                        ref={(element) => {
+                          categoryChipRefs.current[index] = element
+                        }}
+                        type="button"
+                        onClick={() => selectCategoryByIndex(index)}
+                        className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-colors duration-300 ease-[cubic-bezier(.25,.8,.25,1)] outline-[#1bac4b] will-change-transform ${
+                          isActive
+                            ? 'border-[#1bac4b] bg-[#1bac4b] text-white'
+                            : 'border-black/10 bg-white/85 text-slate-700 hover:bg-[#1bac4b]/20'
+                        }`}
+                      >
+                        <Icon className="size-3.5" />
+                        {category}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
-              
+              <div className="flex shrink-0 items-center gap-2 pl-1">
+                <div className="h-6 w-px bg-black/10" />
+                <button
+                  type="button"
+                  aria-label="Qidirish"
+                  onClick={openSearch}
+                  className="flex size-11 items-center justify-center rounded-full border border-[#1bac4b33] bg-white shadow-sm transition-opacity duration-300 hover:bg-[#1bac4b1c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer"
+                >
+                  <Search className="size-5 text-[#18714776]" />
+                </button>
+              </div>
             </div>
 
             <div
-              className={`overflow-hidden transition-all duration-500 ease-[cubic-bezier(.4,0,.2,1)] p-1`}
+              className={`absolute right-0 top-0 z-20 overflow-hidden rounded-full border bg-white
+              transition-all duration-500 ease-[cubic-bezier(.4,0,.2,1)]
+              ${
+                searchActive
+                  ? 'h-[46px] w-full px-4 opacity-100 scale-100 border-[#1bac4b33] ring-1 ring-[#1bac4b]/95 shadow-[0_18px_36px_-28px_rgba(27,172,75,0.38)]'
+                  : 'h-[46px] w-full px-4 opacity-0 scale-95 border-[#1bac4b33]'
+              }`}
+              style={{
+                pointerEvents: searchActive ? 'auto' : 'none'
+              }}
             >
-              <div className="h-[46px] rounded-full border border-[#1bac4b33] bg-white px-4 ring-1 ring-[#1bac4b]/95 shadow-[0_18px_36px_-28px_rgba(27,172,75,0.38)]">
-                <div
-                  className="flex h-full items-center gap-2"
-                  onClick={() => {
-                    if (searchActive) focusSearchInput()
-                  }}
-                >
-                  <Search className="size-5 shrink-0 text-[#1bac4b]" />
+              <div
+                className="flex h-full items-center gap-2"
+                onClick={() => {
+                  if (searchActive) focusSearchInput()
+                }}
+              >
+                <Search className="size-5 shrink-0 text-[#1bac4b]" />
 
-                  <div className="min-w-0 flex-1 overflow-hidden">
-                    <Input
-                      ref={searchRef}
-                      value={query}
-                      onChange={(event) => {
-                        setQuery(event.target.value)
-                        setSearchOpen(true)
-                      }}
-                      onFocus={() => setSearchOpen(true)}
-                      onBlur={() => {
-                        clearTimeout(searchBlurTimeout.current)
-                        searchBlurTimeout.current = setTimeout(() => {
-                          if (!query) closeSearch()
-                        }, 140)
-                      }}
-                      placeholder="Qidirish..."
-                      className="h-7 w-full border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
-                    />
-                  </div>
-
-                  {query==""||<button
-                    type="button"
-                    aria-label={"Qidiruvni tozalash"}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      handleSearchAction()
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <Input
+                    ref={searchRef}
+                    value={query}
+                    onChange={(event) => {
+                      setQuery(event.target.value)
+                      setSearchOpen(true)
                     }}
-                    className={`inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer`}
-                  >
-                    <X className="size-4" />
-                  </button>}
+                    onFocus={() => setSearchOpen(true)}
+                    onBlur={() => {
+                      clearTimeout(searchBlurTimeout.current)
+                      searchBlurTimeout.current = setTimeout(() => {
+                        if (!query) closeSearch()
+                      }, 140)
+                    }}
+                    placeholder="Qidirish..."
+                    className="h-7 w-full border-0 !bg-transparent px-0 text-[15px] text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
+                  />
                 </div>
+
+                <button
+                  type="button"
+                  aria-label={query ? "Qidiruvni tozalash" : "Qidiruvni yopish"}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    handleSearchAction()
+                  }}
+                  className={`inline-flex shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer ${
+                    searchActive ? 'size-8 opacity-100' : 'size-0 opacity-0 pointer-events-none'
+                  }`}
+                >
+                  <X className="size-4" />
+                </button>
               </div>
             </div>
           </div>

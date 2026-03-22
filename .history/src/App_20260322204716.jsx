@@ -35,7 +35,6 @@ const CATALOG_PAGE_VARIANTS = {
 }
 const LOADED_IMAGE_CACHE = new Set()
 
-
 const TOKEN_SYNONYMS = {
   palov: ['plov', 'osh'],
   plov: ['palov', 'osh'],
@@ -391,7 +390,6 @@ export default function App() {
   const [detailTrackDragging, setDetailTrackDragging] = useState(false)
   const [dragY, setDragY] = useState(0)
   const [dragProgress, setDragProgress] = useState(0)
-  const [loadedImages, setLoadedImages] = useState({})
 
   const searchRef = useRef(null)
   const categoryScrollRef = useRef(null)
@@ -1057,6 +1055,7 @@ export default function App() {
                 >
 {categoryButtons.map((category, index) => {
   const isActive = index === activeCategoryIndex
+  const [loaded, setLoaded] = useState(false)
   const categoryImages = {
     "Barchasi": "https://zira.uz/wp-content/uploads/2020/08/kai--natma-shurpa.jpg",
     "Asosiy taom": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKp34NJDWOVx_b-Ie7JYemCuNQmGC_7HcIPQ&s",
@@ -1079,20 +1078,18 @@ export default function App() {
       <div className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full p-[3px]">
         
         {/* loader */}
-        {!loadedImages[category] && (
+        {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-[#1bac4b]" />
           </div>
         )}
 
         <img
-          src={`${categoryImages[category]}?t=${category}`}
+          src={categoryImages[category]}
           alt={category}
-          onLoad={() =>
-            setLoadedImages(prev => ({ ...prev, [category]: true }))
-          }
+          onLoad={() => setLoaded(true)}
           className={`h-full w-full rounded-full object-cover transition-all duration-500
-            ${loadedImages[category] ? "blur-0 scale-100" : "blur-md scale-105"}
+            ${loaded ? "blur-0 scale-100" : "blur-md scale-105"}
           `}
         />
 
@@ -1157,17 +1154,18 @@ export default function App() {
                     />
                   </div>
 
-                  {query==""||<button
+                  <button
                     type="button"
                     aria-label={"Qidiruvni tozalash"}
                     onClick={(event) => {
                       event.stopPropagation()
                       handleSearchAction()
                     }}
-                    className={`inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer`}
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition duration-300 hover:bg-slate-200 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1bac4b] cursor-pointer"
+                    
                   >
                     <X className="size-4" />
-                  </button>}
+                  </button>
                 </div>
               </div>
             </div>
