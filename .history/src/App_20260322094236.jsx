@@ -239,7 +239,7 @@ function FoodRow({ food, isLast }) {
           food.onOpenDetails?.(food)
         }
       }}
-      className={`relative flex gap-3 px-[13px] py-3.5 overflow-hidden outline-[#1bac4b] ${food.mavjudligi ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`relative flex gap-3 px-[13px] py-3.5 overflow-hidden outline-[#] ${food.mavjudligi ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <ImageWithLoader
         src={getMainImage(food)}
