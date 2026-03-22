@@ -1315,7 +1315,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 left-0 flex w-1/2 items-center justify-start px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === 0
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
@@ -1336,7 +1336,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 right-0 flex w-1/2 items-center justify-end px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === total - 1
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
@@ -1351,7 +1351,7 @@ export default function App() {
                     </motion.div>
 
                     {total > 1 && (
-                      <div className="flex items-center justify-center gap-2 mb-4">
+                      <div className="flex items-center justify-center gap-2 mb-4 relative b">
                         {gallery.map((_, idx) => (
                           <motion.button
                             key={idx}

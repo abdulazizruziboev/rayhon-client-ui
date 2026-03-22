@@ -1198,50 +1198,31 @@ export default function App() {
         )}
       </section>
 
-<AnimatePresence initial={false} mode="wait">
-  {detailFood && (
-    <motion.div
-      key={`detail-${detailFood.id}`}
-      ref={detailScrollRef}
-
-      initial={{ opacity: 0, x: 80 }}
-      animate={{
-        opacity: 1 - Math.pow(Math.abs(dragProgress), 1.3) * 0.2,
-        x: 0
-      }}
-      exit={{
-        x: typeof window !== 'undefined' ? window.innerWidth : 400,
-        opacity: 0,
-        transition: {
-          x: {
-            type: 'spring',
-            stiffness: 220,
-            damping: 32,
-            mass: 0.9
-          },
-          opacity: {
-            duration: 0.22,
-            ease: 'easeOut',
-            delay: 0.15
-          }
-        }
-      }}
-      transition={{
-        type: 'spring',
-        stiffness: 240,
-        damping: 30,
-        mass: 0.8
-      }}
-
-      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8 will-change-transform"
-
-      onPointerDown={onDetailPointerDown}
-      onPointerMove={onDetailPointerMove}
-      onPointerUp={onDetailPointerUp}
-      onPointerCancel={onDetailPointerUp}
-
-      style={{ touchAction: 'pan-y' }}
-    >
+      <AnimatePresence initial={false}>
+        {detailFood && (
+          <motion.div
+            key={`detail-${detailFood.id}`}
+            ref={detailScrollRef}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            // transition={{ duration: 0.15, ease: 'easeOut' }}
+            transition={{
+              type: 'spring',
+              stiffness: 20,
+              damping: 280,
+              mass: 0.5
+            }}
+            className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8"
+            onPointerDown={onDetailPointerDown}
+            onPointerMove={onDetailPointerMove}
+            onPointerUp={onDetailPointerUp}
+            onPointerCancel={onDetailPointerUp}
+            style={{
+              touchAction: 'pan-y',
+              opacity: Math.max(0.3, 1 - Math.abs(dragProgress) * 0.3)
+            }}
+          >
             <div className="mx-auto max-w-7xl">
               <div className="mb-4 px-1">
                 <button
@@ -1315,7 +1296,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 left-0 flex w-1/2 items-center justify-start px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === 0
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
@@ -1336,7 +1317,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 right-0 flex w-1/2 items-center justify-end px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === total - 1
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'

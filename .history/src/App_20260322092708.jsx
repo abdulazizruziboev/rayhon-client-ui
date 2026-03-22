@@ -1206,8 +1206,8 @@ export default function App() {
 
       initial={{ opacity: 0, x: 80 }}
       animate={{
-        opacity: 1 - Math.pow(Math.abs(dragProgress), 1.3) * 0.2,
-        x: 0
+        x: dragX,
+        opacity: 1 - Math.pow(Math.abs(dragProgress), 1.5) * 0.25
       }}
       exit={{
         x: typeof window !== 'undefined' ? window.innerWidth : 400,
@@ -1215,14 +1215,14 @@ export default function App() {
         transition: {
           x: {
             type: 'spring',
-            stiffness: 220,
-            damping: 32,
-            mass: 0.9
+            stiffness: 240,
+            damping: 30,
+            mass: 0.8
           },
           opacity: {
-            duration: 0.22,
+            duration: 0.18,
             ease: 'easeOut',
-            delay: 0.15
+            delay: 0.12
           }
         }
       }}
@@ -1233,7 +1233,7 @@ export default function App() {
         mass: 0.8
       }}
 
-      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8 will-change-transform"
+      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8"
 
       onPointerDown={onDetailPointerDown}
       onPointerMove={onDetailPointerMove}
@@ -1315,7 +1315,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 left-0 flex w-1/2 items-center justify-start px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === 0
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
@@ -1336,7 +1336,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 right-0 flex w-1/2 items-center justify-end px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === total - 1
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'

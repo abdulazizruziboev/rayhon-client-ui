@@ -1204,43 +1204,30 @@ export default function App() {
       key={`detail-${detailFood.id}`}
       ref={detailScrollRef}
 
-      initial={{ opacity: 0, x: 80 }}
+      initial={{ opacity: 0, x: 60 }}
       animate={{
-        opacity: 1 - Math.pow(Math.abs(dragProgress), 1.3) * 0.2,
+        opacity: 1 - Math.abs(dragProgress) * 0.3,
         x: 0
       }}
-      exit={{
-        x: typeof window !== 'undefined' ? window.innerWidth : 400,
-        opacity: 0,
-        transition: {
-          x: {
-            type: 'spring',
-            stiffness: 220,
-            damping: 32,
-            mass: 0.9
-          },
-          opacity: {
-            duration: 0.22,
-            ease: 'easeOut',
-            delay: 0.15
-          }
-        }
-      }}
+      exit={{ opacity: 0, x: 120 }}
+
       transition={{
         type: 'spring',
-        stiffness: 240,
-        damping: 30,
-        mass: 0.8
+        stiffness: 260,
+        damping: 28,
+        mass: 0.7
       }}
 
-      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8 will-change-transform"
+      className="fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-white p-3 pb-8"
 
       onPointerDown={onDetailPointerDown}
       onPointerMove={onDetailPointerMove}
       onPointerUp={onDetailPointerUp}
       onPointerCancel={onDetailPointerUp}
 
-      style={{ touchAction: 'pan-y' }}
+      style={{
+        touchAction: 'pan-y'
+      }}
     >
             <div className="mx-auto max-w-7xl">
               <div className="mb-4 px-1">
@@ -1315,7 +1302,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 left-0 flex w-1/2 items-center justify-start px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === 0
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
@@ -1336,7 +1323,7 @@ export default function App() {
                               className="pointer-events-auto absolute inset-y-0 right-0 flex w-1/2 items-center justify-end px-3 touch-pan-y"
                             >
                               <span
-                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 cursor-pointer ${
+                                className={`inline-flex size-9 items-center justify-center rounded-full bg-black/18 text-white/85 opacity-0 backdrop-blur-sm transition duration-200 group-hover/gallery:opacity-100 group-focus-within/gallery:opacity-100 ${
                                   detailSlide === total - 1
                                     ? 'group-hover/gallery:opacity-35 group-focus-within/gallery:opacity-35'
                                     : 'group-hover/gallery:bg-black/28 group-focus-within/gallery:bg-black/28'
