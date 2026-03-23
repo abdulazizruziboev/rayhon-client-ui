@@ -1026,9 +1026,9 @@ export default function App() {
           initial={{ y: -12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="px-1"
+          className="mb-4 px-1"
         >
-          <div className="w-full flex items-center justify-start pt-4 gap-2">
+          <div className="w-full flex items-center justify-start pt-6 gap-2">
             <p className="text-[#1bac4b] text-[22px] leading-none text-start">
               Taomlar menyusi
             </p>
@@ -1076,7 +1076,7 @@ export default function App() {
       className="flex shrink-0 cursor-pointer flex-col items-center gap-1"
     >
       {/* IMAGE */}
-      <div className="relative flex h-[65px] w-[65px] items-center justify-center rounded-full p-[3px]">
+      <div className="relative flex h-[60px] w-[60px] items-center justify-center rounded-full p-[3px]">
         
         {/* loader */}
         {!loadedImages[category] && (

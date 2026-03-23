@@ -240,7 +240,7 @@ function FoodRow({ food, isLast }) {
           food.onOpenDetails?.(food)
         }
       }}
-      className={`relative flex gap-3 px-[13px] py-3.5 overflow-hidden outline-[#1bac4b] ${food.mavjudligi ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`relative flex gap-3 px-[px] py-2.5 overflow-hidden outline-[#1bac4b] ${food.mavjudligi ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <ImageWithLoader
         src={getMainImage(food)}
@@ -1026,9 +1026,9 @@ export default function App() {
           initial={{ y: -12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="px-1"
+          className="mb-4 px-1"
         >
-          <div className="w-full flex items-center justify-start pt-4 gap-2">
+          <div className="w-full flex items-center justify-start pt-6 gap-2">
             <p className="text-[#1bac4b] text-[22px] leading-none text-start">
               Taomlar menyusi
             </p>
@@ -1052,7 +1052,7 @@ export default function App() {
                 <div
                   ref={categoryScrollRef}
                   data-catalog-swipe
-                  className="flex items-center gap-3 overflow-x-auto pb-1 px-1.5 py-3 no-scrollbar"
+                  className="flex items-center gap-3.5 overflow-x-auto pb-1 px-1.5 py-3 no-scrollbar mt-1.5"
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
 {categoryButtons.map((category, index) => {
@@ -1076,7 +1076,7 @@ export default function App() {
       className="flex shrink-0 cursor-pointer flex-col items-center gap-1"
     >
       {/* IMAGE */}
-      <div className="relative flex h-[65px] w-[65px] items-center justify-center rounded-full p-[3px]">
+      <div className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full p-[3px]">
         
         {/* loader */}
         {!loadedImages[category] && (
@@ -1098,7 +1098,7 @@ export default function App() {
 
         {/* ring */}
         <div
-          className={`absolute inset-0 rounded-full ring-2 ring-offset-0 ring-offset-white transition-all duration-300
+          className={`absolute inset-0 rounded-full ring-2 ring-offset-2 ring-offset-white transition-all duration-300
             ${
               isActive
                 ? "ring-[#1bac4b]"

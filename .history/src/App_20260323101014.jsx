@@ -1026,7 +1026,7 @@ export default function App() {
           initial={{ y: -12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          className="px-1"
+          className="mb-4 px-1"
         >
           <div className="w-full flex items-center justify-start pt-4 gap-2">
             <p className="text-[#1bac4b] text-[22px] leading-none text-start">
